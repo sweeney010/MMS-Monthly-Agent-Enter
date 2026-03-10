@@ -182,7 +182,7 @@
         <div class="auth-banner-sub" id="authSub">Required to read your Sheet, copy the template and create the report in Google Slides</div>
       </div>
     </div>
-    <button class="auth-banner-btn" id="authBtn" onclick="handleAuthClick()">Connect Google</button>
+    <button class="auth-banner-btn" id="authBtn">Connect Google</button>
   </div>
 
   <div class="steps">
@@ -503,14 +503,12 @@ function updateAuthBadge(ok) {
     title.textContent = 'Google account connected';
     sub.textContent   = 'Your account is authenticated — you can now load data and generate reports. Click to disconnect.';
     btn.textContent   = 'Disconnect';
-    btn.onclick       = handleAuthClick;
   } else {
     banner.className  = 'auth-banner';
     icon.textContent  = '🔗';
     title.textContent = 'Connect your Google account to get started';
     sub.textContent   = 'Required to read your Sheet, copy the template and create the report in Google Slides';
     btn.textContent   = 'Connect Google';
-    btn.onclick       = handleAuthClick;
   }
 
   const fetchBtn = document.getElementById('fetchBtn');
