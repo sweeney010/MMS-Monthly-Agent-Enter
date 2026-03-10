@@ -536,7 +536,7 @@ async function fetchSheetData() {
   hint.textContent = 'Reading all tabs…';
 
   try {
-    const tabs = ['Sales & Traffic','Ads','S&S','Buybox','Daily Sales','ASIN Share'];
+    const tabs = ['Daily Sales','Buybox, CR, Sessions','S&S','ASIN Share','Monthly Sales & Traffic'];
     let combined = '';
     for (const tab of tabs) {
       try {
@@ -798,11 +798,11 @@ async function clearFutureRows(sheetId, tabName, fromRow, cols, totalRows) {
 async function updateSheetData(sheetId, extracted, month, year) {
   addLog('writer', 'Updating Google Sheet with current month data…');
 
-  const stRow = await findMonthRow(sheetId, 'Sales & Traffic', month, year);
-  const bbRow = await findMonthRow(sheetId, 'Buybox', month, year);
+  const stRow = await findMonthRow(sheetId, 'Monthly Sales & Traffic', month, year);
+  const bbRow = await findMonthRow(sheetId, 'Buybox, CR, Sessions', month, year);
 
   if (stRow) {
-    addLog('writer', `Found ${monthLabel(month,year)} at row ${stRow} in Sales & Traffic`);
+    addLog('writer', `Found ${monthLabel(month,year)} at row ${stRow} in Monthly Sales & Traffic`);
     const pairs = [
       { col:'B', val: parseNum(extracted.MON_SALES) },
       { col:'F', val: parseNum(extracted.MON_UNITS) },
@@ -814,16 +814,16 @@ async function updateSheetData(sheetId, extracted, month, year) {
     ];
     for (const { col, val } of pairs) {
       if (val !== null && val !== undefined && !isNaN(val))
-        await sheetsUpdate(sheetId, `Sales & Traffic!${col}${stRow}`, [[val]]);
+        await sheetsUpdate(sheetId, `Monthly Sales & Traffic!${col}${stRow}`, [[val]]);
     }
-    addLog('writer', 'Sales & Traffic updated ✓');
+    addLog('writer', 'Monthly Sales & Traffic updated ✓');
   } else {
-    addLog('writer', `⚠ ${monthLabel(month,year)} not found in Sales & Traffic`, 'error');
+    addLog('writer', `⚠ ${monthLabel(month,year)} not found in Monthly Sales & Traffic`, 'error');
   }
 
   if (bbRow && extracted.MON_BUYBOX) {
-    await sheetsUpdate(sheetId, `Buybox!B${bbRow}`, [[parseNum(extracted.MON_BUYBOX)/100]]);
-    addLog('writer', 'Buybox updated ✓');
+    await sheetsUpdate(sheetId, `Buybox, CR, Sessions!B${bbRow}`, [[parseNum(extracted.MON_BUYBOX)/100]]);
+    addLog('writer', 'Buybox, CR, Sessions updated ✓');
   }
 
   addLog('writer', 'Sheet update complete ✓');
@@ -918,13 +918,12 @@ async function runAgents() {
     addLog('orchestrator', `Planning ${brand} ${month} ${year} Monthly Report… [${currentMode} / ${getSelectedModel()}]`);
     setProgress(10);
     const orchRaw = await callBrain(
-      `You are an Orchestrator for a marketplace monthly report. Analyse the data and identify the quarter. Return ONLY raw JSON: {"summary":string,"quarter":string}`,
+      `You are an Orchestrator for a marketplace monthly report. Analyse the data and summarise performance for the selected month. Never reference quarters. Return ONLY raw JSON: {"summary":string}`,
       `Brand:${brand} Period:${month} ${year}\nData:\n${parsedData.slice(0,3000)}`
     );
     let plan;
-    try { plan = extractJSON(orchRaw); } catch { plan = { summary:'Data analysed', quarter:'Q1' }; }
+    try { plan = extractJSON(orchRaw); } catch { plan = { summary:'Data analysed' }; }
     addLog('orchestrator', plan.summary);
-    addLog('orchestrator', `Quarter identified: ${plan.quarter}`);
     setProgress(25);
 
     // ── Data Agent ──
@@ -948,17 +947,15 @@ Return this exact structure:
   "ANNUAL_CVR":"","ANNUAL_CVR_YOY":"",
   "ANNUAL_BUYBOX":"","ANNUAL_BUYBOX_YOY":"",
   "ANNUAL_COMMENTARY":"",
-  "QTR_SALES":"","QTR_SALES_QOQ":"","QTR_UNITS":"","QTR_UNITS_QOQ":"",
-  "QTR_BUYBOX":"","QTR_BUYBOX_QOQ":"","QTR_TRAFFIC":"","QTR_TRAFFIC_QOQ":"",
-  "QTR_CVR":"","QTR_CVR_QOQ":"",
-  "ADS_HEADLINE":"","ADS_COMMENTARY":"",
-  "ADS_QTR_HEADLINE":"","ADS_QTR_BULLET_1":"","ADS_QTR_BULLET_2":"","ADS_QTR_BULLET_3":"",
-  "PAID_HEADLINE":"",
+  "ADS_HEADLINE":"","ADS_MON_BULLET_1":"","ADS_MON_BULLET_2":"",
   "MON_SALES":"","MON_SALES_MOM":"","MON_UNITS":"","MON_UNITS_MOM":"",
   "MON_SESSIONS":"","MON_SESSIONS_MOM":"","MON_CVR":"","MON_CVR_MOM":"",
   "MON_BUYBOX":"","MON_BUYBOX_MOM":"","MON_COMMENTARY":"",
-  "MON_ADS_HEADLINE":"","MON_ADS_BULLET_1":"","MON_ADS_BULLET_2":"",
-  "S_AND_S_COMMENTARY":"","BUYBOX_COMMENTARY":"","TOP_PRODUCTS_COMMENTARY":""
+  "TRAFFIC_COMMENTARY":"",
+  "ASIN_HEADLINE":"","ASIN_COMMENTARY":"",
+  "S_AND_S_HEADLINE":"","S_AND_S_COMMENTARY":"",
+  "BUYBOX_COMMENTARY":"","TOP_PRODUCTS_COMMENTARY":"",
+  "NEXT_PERIOD":""
 }`,
       `Brand:${brand} Period:${month} ${year}\nSheet data:\n${parsedData.slice(0,7000)}`,
       5000
@@ -967,10 +964,9 @@ Return this exact structure:
     let extracted;
     try { extracted = extractJSON(dataRaw); }
     catch(e) { addLog('data', `JSON parse warning: ${e.message}`, 'error'); extracted = {}; }
-    extracted.BRAND   = brand;
-    extracted.MONTH   = month;
-    extracted.YEAR    = year;
-    extracted.QUARTER = extracted.QUARTER || plan.quarter || 'Q1';
+    extracted.BRAND = brand;
+    extracted.MONTH = month;
+    extracted.YEAR  = year;
     addLog('data', `${Object.values(extracted).filter(v => v && v !== '0').length} fields extracted`);
     setProgress(50);
 
@@ -991,10 +987,10 @@ Return this exact structure:
 
       // Trim chart data to selected month in the COPY only
       addLog('writer', `Trimming charts to ${month} ${year}…`);
-      const stRow = await findMonthRow(workingSheetId, 'Sales & Traffic', month, year);
-      const bbRow = await findMonthRow(workingSheetId, 'Buybox', month, year);
-      if (stRow) await clearFutureRows(workingSheetId, 'Sales & Traffic', stRow, ['B','C','D','F','P','Q','T'], 20);
-      if (bbRow) await clearFutureRows(workingSheetId, 'Buybox', bbRow, ['B'], 20);
+      const stRow = await findMonthRow(workingSheetId, 'Monthly Sales & Traffic', month, year);
+      const bbRow = await findMonthRow(workingSheetId, 'Buybox, CR, Sessions', month, year);
+      if (stRow) await clearFutureRows(workingSheetId, 'Monthly Sales & Traffic', stRow, ['B','C','D','F','P','Q','T'], 20);
+      if (bbRow) await clearFutureRows(workingSheetId, 'Buybox, CR, Sessions', bbRow, ['B'], 20);
 
       // Trim Daily Sales to correct number of days
       const mIdx = MONTH_NAMES.findIndex(m => month.toLowerCase().startsWith(m.toLowerCase()));
