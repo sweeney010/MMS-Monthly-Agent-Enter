@@ -18,44 +18,54 @@
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:var(--text);font-family:var(--font-d);min-height:100vh;overflow-x:hidden}
-  body::before{content:'';position:fixed;top:-40vh;left:-20vw;width:80vw;height:80vh;
-    background:radial-gradient(ellipse,rgba(124,106,247,.07) 0%,transparent 70%);pointer-events:none;z-index:0}
-  body::after{content:'';position:fixed;bottom:-30vh;right:-10vw;width:60vw;height:60vh;
-    background:radial-gradient(ellipse,rgba(52,211,153,.05) 0%,transparent 70%);pointer-events:none;z-index:0}
-
+  body::before{content:'';position:fixed;top:-40vh;left:-20vw;width:80vw;height:80vh;background:radial-gradient(ellipse,rgba(124,106,247,.07) 0%,transparent 70%);pointer-events:none;z-index:0}
+  body::after{content:'';position:fixed;bottom:-30vh;right:-10vw;width:60vw;height:60vh;background:radial-gradient(ellipse,rgba(52,211,153,.05) 0%,transparent 70%);pointer-events:none;z-index:0}
   .app{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:48px 24px 80px}
 
-  /* ── Header ── */
+  /* Header */
   .header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:48px;gap:24px}
-  .eyebrow{font-family:var(--font-m);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
-    color:var(--accent2);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .eyebrow{font-family:var(--font-m);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent2);margin-bottom:10px;display:flex;align-items:center;gap:8px}
   .eyebrow::before{content:'';width:20px;height:1px;background:var(--accent2);opacity:.6}
   h1{font-size:clamp(28px,5vw,42px);font-weight:800;line-height:1.05;letter-spacing:-.02em}
   h1 span{color:var(--accent2)}
   .tagline{font-family:var(--font-m);font-size:12px;color:var(--text2);margin-top:10px;line-height:1.6}
 
-  /* ── Auth badge ── */
-  .auth-badge{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:100px;
-    border:1px solid var(--border2);background:var(--surface);font-family:var(--font-m);
-    font-size:11px;color:var(--text2);white-space:nowrap;cursor:pointer;transition:all .2s;
-    flex-shrink:0;margin-top:6px}
-  .auth-badge:hover{border-color:var(--accent);color:var(--text)}
-  .auth-badge.connected{border-color:var(--green);color:var(--green)}
-  .auth-badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
-  .auth-badge.connected .dot{animation:pulse-dot 2s ease-in-out infinite}
-  @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+  /* Auth banner */
+  .auth-banner {
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    background:linear-gradient(135deg,rgba(124,106,247,.12),rgba(124,106,247,.05));
+    border:1px solid var(--accent);border-radius:14px;padding:18px 22px;
+    margin-bottom:32px;cursor:pointer;transition:all .2s;
+  }
+  .auth-banner:hover{background:linear-gradient(135deg,rgba(124,106,247,.2),rgba(124,106,247,.08));border-color:var(--accent2)}
+  .auth-banner.connected{background:linear-gradient(135deg,rgba(52,211,153,.1),rgba(52,211,153,.03));border-color:var(--green);cursor:default}
+  .auth-banner.connected:hover{background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(52,211,153,.05))}
+  .auth-banner-left{display:flex;align-items:center;gap:14px;flex:1;min-width:0}
+  .auth-banner-icon{font-size:22px;flex-shrink:0;animation:pulse-icon 2s ease-in-out infinite}
+  .auth-banner.connected .auth-banner-icon{animation:none}
+  @keyframes pulse-icon{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+  .auth-banner-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px}
+  .auth-banner-sub{font-family:var(--font-m);font-size:11px;color:var(--text2);line-height:1.5}
+  .auth-banner-btn{
+    flex-shrink:0;padding:10px 20px;border-radius:8px;
+    background:var(--accent);color:#fff;font-family:var(--font-d);
+    font-size:13px;font-weight:700;letter-spacing:.02em;
+    transition:all .2s;white-space:nowrap;
+  }
+  .auth-banner:hover .auth-banner-btn{background:var(--accent2)}
+  .auth-banner.connected .auth-banner-btn{background:rgba(52,211,153,.15);color:var(--green);border:1px solid rgba(52,211,153,.3)}
 
-  /* ── Steps ── */
+  /* Auth badge (hidden — replaced by banner) */
+  .auth-badge{display:none}
+
+  /* Steps */
   .steps{display:grid;gap:12px;margin-bottom:28px}
   .step{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s}
   .step.active{border-color:var(--border2)}
   .step.done{border-color:rgba(52,211,153,.25)}
   .step.has-error{border-color:rgba(248,113,113,.3)}
-
   .step-header{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer}
-  .step-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
-    font-family:var(--font-m);font-size:12px;font-weight:500;flex-shrink:0;
-    background:var(--surface2);border:1px solid var(--border2);color:var(--text3);transition:all .3s}
+  .step-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-m);font-size:12px;font-weight:500;flex-shrink:0;background:var(--surface2);border:1px solid var(--border2);color:var(--text3);transition:all .3s}
   .step.active .step-num{background:var(--accent-glow);border-color:var(--accent);color:var(--accent2)}
   .step.done .step-num{background:var(--green-glow);border-color:var(--green);color:var(--green)}
   .step-info{flex:1;min-width:0}
@@ -68,72 +78,44 @@
   .step-status.ready{background:rgba(124,106,247,.15);color:var(--accent2)}
   .step-status.done{background:rgba(52,211,153,.12);color:var(--green)}
   .step-status.error{background:rgba(248,113,113,.12);color:var(--red)}
-
   .step-body{padding:0 20px 20px;display:none}
   .step.active .step-body{display:block}
 
-  /* ── Form elements ── */
+  /* Form */
   .field-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px}
   .field{display:flex;flex-direction:column;gap:5px}
   label{font-family:var(--font-m);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)}
-  input,select{background:var(--bg);border:1px solid var(--border2);border-radius:8px;color:var(--text);
-    font-family:var(--font-d);font-size:13px;padding:9px 12px;outline:none;transition:border-color .2s;width:100%}
+  input,select{background:var(--bg);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--font-d);font-size:13px;padding:9px 12px;outline:none;transition:border-color .2s;width:100%}
   input:focus,select:focus{border-color:var(--accent)}
   select option{background:var(--surface)}
-
-  /* ── Config box ── */
   .config-box{background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:12px}
   .config-box-title{font-family:var(--font-m);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:10px}
   .hint{font-family:var(--font-m);font-size:10px;color:var(--text3);line-height:1.6;margin-top:8px}
   .hint a{color:var(--accent2)}
 
-  /* ── API mode tabs ── */
+  /* Mode tabs */
   .mode-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
-  .mode-tab{font-family:var(--font-m);font-size:11px;padding:5px 12px;border-radius:6px;cursor:pointer;
-    border:1px solid var(--border2);background:var(--surface2);color:var(--text3);transition:all .2s}
+  .mode-tab{font-family:var(--font-m);font-size:11px;padding:5px 12px;border-radius:6px;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--text3);transition:all .2s}
   .mode-tab:hover{border-color:var(--accent);color:var(--accent2)}
   .mode-tab.active{background:var(--accent-glow);border-color:var(--accent);color:var(--accent2)}
-
-  /* ── Model selector ── */
-  .model-groups{display:grid;gap:8px}
   .model-group{display:none}
   .model-group.visible{display:block}
 
-  /* ── Upload ── */
-  .upload-zone{border:1px dashed var(--border2);border-radius:10px;padding:16px;
-    display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .2s;
-    margin-bottom:10px;position:relative;overflow:hidden}
-  .upload-zone:hover{border-color:var(--accent);background:var(--accent-glow)}
-  .upload-zone.has-file{border-color:rgba(52,211,153,.4);background:var(--green-glow);border-style:solid}
-  .upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
-  .upload-icon{font-size:20px;flex-shrink:0}
-  .upload-text{flex:1;min-width:0}
-  .upload-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .upload-hint{font-family:var(--font-m);font-size:10px;color:var(--text3);margin-top:1px}
-  .upload-zone.has-file .upload-hint{color:var(--green)}
-
-  /* ── Template row ── */
+  /* Template row */
   .template-row{display:flex;gap:10px;align-items:flex-end;margin-bottom:12px}
   .template-row .field{flex:1}
-  .btn-sm{padding:9px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);
-    color:var(--text2);font-family:var(--font-m);font-size:11px;cursor:pointer;white-space:nowrap;
-    transition:all .2s;height:38px;display:flex;align-items:center;gap:6px}
+  .btn-sm{padding:9px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);font-family:var(--font-m);font-size:11px;cursor:pointer;white-space:nowrap;transition:all .2s;height:38px;display:flex;align-items:center;gap:6px}
   .btn-sm:hover{border-color:var(--accent);color:var(--accent2)}
 
-  /* ── Run button ── */
-  .btn-run{width:100%;padding:16px;border-radius:10px;border:none;
-    background:linear-gradient(135deg,var(--accent) 0%,#5b4fdd 100%);
-    color:#fff;font-family:var(--font-d);font-size:14px;font-weight:700;letter-spacing:.04em;
-    cursor:pointer;transition:all .25s;position:relative;overflow:hidden;margin-top:4px}
+  /* Buttons */
+  .btn-run{width:100%;padding:16px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--accent) 0%,#5b4fdd 100%);color:#fff;font-family:var(--font-d);font-size:14px;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;margin-top:4px}
   .btn-run::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);opacity:0;transition:opacity .2s}
   .btn-run:hover::after{opacity:1}
   .btn-run:disabled{background:var(--surface2);color:var(--text3);cursor:not-allowed}
   .btn-run:disabled::after{display:none}
 
-  /* ── Log ── */
-  .log-container{background:var(--bg);border:1px solid var(--border);border-radius:10px;
-    padding:14px 16px;font-family:var(--font-m);font-size:11px;line-height:1.8;
-    min-height:100px;max-height:260px;overflow-y:auto;color:var(--text2)}
+  /* Log */
+  .log-container{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-family:var(--font-m);font-size:11px;line-height:1.8;min-height:100px;max-height:260px;overflow-y:auto;color:var(--text2)}
   .log-empty{color:var(--text3);font-style:italic}
   .log-line{display:flex;gap:10px;align-items:baseline}
   .log-time{color:var(--text3);flex-shrink:0}
@@ -145,37 +127,31 @@
   .log-msg.error{color:var(--red)}
   .log-msg.success{color:var(--green)}
 
-  /* ── Progress ── */
+  /* Progress */
   .progress-bar{height:2px;background:var(--border);border-radius:1px;margin:12px 0;overflow:hidden;display:none}
   .progress-bar.visible{display:block}
-  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));
-    border-radius:1px;transition:width .4s ease;box-shadow:0 0 8px var(--accent)}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:1px;transition:width .4s ease;box-shadow:0 0 8px var(--accent)}
 
-  /* ── Result ── */
-  .result-card{background:linear-gradient(135deg,rgba(52,211,153,.08),rgba(52,211,153,.03));
-    border:1px solid rgba(52,211,153,.3);border-radius:14px;padding:20px;display:none;animation:slide-in .4s ease}
+  /* Result */
+  .result-card{background:linear-gradient(135deg,rgba(52,211,153,.08),rgba(52,211,153,.03));border:1px solid rgba(52,211,153,.3);border-radius:14px;padding:20px;display:none;animation:slide-in .4s ease}
   .result-card.visible{display:block}
   @keyframes slide-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
   .result-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--green);margin-bottom:12px}
-  .result-link{display:flex;align-items:center;gap:10px;padding:12px 16px;
-    background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:8px;
-    text-decoration:none;color:var(--text);font-size:13px;font-weight:600;transition:all .2s}
+  .result-link{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:8px;text-decoration:none;color:var(--text);font-size:13px;font-weight:600;transition:all .2s}
   .result-link:hover{background:rgba(52,211,153,.15);border-color:var(--green)}
   .result-link-icon{font-size:18px}
   .result-link-sub{font-family:var(--font-m);font-size:10px;color:var(--text2);margin-top:1px}
 
-  /* ── Divider ── */
-  .divider{display:flex;align-items:center;gap:12px;margin:20px 0;
-    font-family:var(--font-m);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em}
+  /* Divider */
+  .divider{display:flex;align-items:center;gap:12px;margin:20px 0;font-family:var(--font-m);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em}
   .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
 
-  /* ── Placeholder guide ── */
+  /* Setup guide */
   .setup-guide{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-top:28px}
   .setup-title{font-family:var(--font-m);font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--text3);margin-bottom:16px}
   .setup-steps{display:grid;gap:12px}
   .setup-step{display:flex;gap:14px;align-items:flex-start}
-  .setup-step-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);
-    display:flex;align-items:center;justify-content:center;font-family:var(--font-m);font-size:10px;color:var(--text3);flex-shrink:0;margin-top:1px}
+  .setup-step-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--font-m);font-size:10px;color:var(--text3);flex-shrink:0;margin-top:1px}
   .setup-step-text{font-size:12px;color:var(--text2);line-height:1.6}
   .setup-step-text strong{color:var(--text)}
   .setup-step-text code{font-family:var(--font-m);font-size:11px;background:var(--bg);border:1px solid var(--border2);border-radius:4px;padding:1px 5px;color:var(--accent2)}
@@ -193,17 +169,25 @@
     <div>
       <div class="eyebrow">Marketplace Intelligence</div>
       <h1>Monthly <span>Agent</span></h1>
-      <p class="tagline">Excel data → AI → Google Slides report<br/>in under two minutes.</p>
+      <p class="tagline">Google Sheets → AI → Google Slides report<br/>in under two minutes.</p>
     </div>
-    <div class="auth-badge" id="authBadge" onclick="handleAuthClick()">
-      <span class="dot"></span>
-      <span id="authLabel">Connect Google</span>
+  </div>
+
+  <!-- Google Auth Banner -->
+  <div class="auth-banner" id="authBanner" onclick="handleAuthClick()">
+    <div class="auth-banner-left">
+      <div class="auth-banner-icon" id="authIcon">🔗</div>
+      <div>
+        <div class="auth-banner-title" id="authTitle">Connect your Google account to get started</div>
+        <div class="auth-banner-sub" id="authSub">Required to read your Sheet, copy the template and create the report in Google Slides</div>
+      </div>
     </div>
+    <div class="auth-banner-btn" id="authBtn">Connect Google</div>
   </div>
 
   <div class="steps">
 
-    <!-- ── Step 1: Configuration ── -->
+    <!-- Step 1: Configuration -->
     <div class="step active" id="step1">
       <div class="step-header" onclick="openStep('step1')">
         <div class="step-num">1</div>
@@ -215,18 +199,14 @@
       </div>
       <div class="step-body">
 
-        <!-- API Keys -->
         <div class="config-box">
           <div class="config-box-title">Pattern Brain API Key</div>
           <div class="field">
             <input type="password" id="brainKey" placeholder="Paste your Brain token…" autocomplete="off" oninput="updateRunButton()"/>
           </div>
-          <div class="hint">
-            Get your token at <a href="https://brain-platform.pattern.com" target="_blank">brain-platform.pattern.com</a>
-          </div>
+          <div class="hint">Get your token at <a href="https://brain-platform.pattern.com" target="_blank">brain-platform.pattern.com</a></div>
         </div>
 
-        <!-- AI Mode + Model -->
         <div class="config-box">
           <div class="config-box-title">AI Endpoint &amp; Model</div>
           <div class="mode-tabs">
@@ -234,8 +214,6 @@
             <div class="mode-tab" onclick="setMode('openai')">OpenAI-compatible</div>
             <div class="mode-tab" onclick="setMode('brain')">Brain Native</div>
           </div>
-
-          <!-- Anthropic models -->
           <div class="model-group visible" id="models-anthropic">
             <div class="field">
               <label>Model</label>
@@ -247,8 +225,6 @@
               </select>
             </div>
           </div>
-
-          <!-- OpenAI models -->
           <div class="model-group" id="models-openai">
             <div class="field">
               <label>Model</label>
@@ -260,8 +236,6 @@
               </select>
             </div>
           </div>
-
-          <!-- Brain Native models -->
           <div class="model-group" id="models-brain">
             <div class="field">
               <label>Model</label>
@@ -273,13 +247,9 @@
               </select>
             </div>
           </div>
-
-          <div class="hint" id="modeHint">
-            Calls <code>/api/v1/anthropic_compatible/v1/messages</code> — Anthropic models only.
-          </div>
+          <div class="hint" id="modeHint">Calls <code>/api/v1/anthropic_compatible/v1/messages</code> — Anthropic models only.</div>
         </div>
 
-        <!-- Google OAuth -->
         <div class="config-box">
           <div class="config-box-title">Google OAuth Client ID</div>
           <div class="field">
@@ -287,11 +257,10 @@
           </div>
           <div class="hint">
             <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a>
-            → Enable Slides + Drive APIs → Create OAuth 2.0 Web Client ID
+            → Enable Slides, Drive &amp; Sheets APIs → Create OAuth 2.0 Web Client ID
           </div>
         </div>
 
-        <!-- Brand / Period -->
         <div class="field-row">
           <div class="field">
             <label>Brand Name</label>
@@ -312,7 +281,6 @@
           </div>
         </div>
 
-        <!-- Template -->
         <div class="template-row">
           <div class="field">
             <label>Google Slides Template ID</label>
@@ -321,24 +289,20 @@
           <button class="btn-sm" onclick="openTemplate()">↗ Open</button>
           <button class="btn-sm" onclick="toggleGuide()">? Placeholders</button>
         </div>
-        <div class="hint">
-          From URL: docs.google.com/presentation/d/<strong style="color:var(--accent2)">THIS_IS_THE_ID</strong>/edit
-        </div>
+        <div class="hint">From URL: docs.google.com/presentation/d/<strong style="color:var(--accent2)">THIS_IS_THE_ID</strong>/edit</div>
 
         <div class="config-box" style="margin-top:12px">
           <div class="config-box-title">Linked Google Sheet ID</div>
           <div class="field">
-            <input type="text" id="sheetId" placeholder="1x2PjcBsOPIb_2HOzYuzEBU9JURdpiGdzL9DO4k1CHY0" value="1x2PjcBsOPIb_2HOzYuzEBU9JURdpiGdzL9DO4k1CHY0"/>
+            <input type="text" id="sheetId" placeholder="Sheet ID from URL" value="1x2PjcBsOPIb_2HOzYuzEBU9JURdpiGdzL9DO4k1CHY0"/>
           </div>
-          <div class="hint">
-            The Google Sheet linked to your chart data. From URL: docs.google.com/spreadsheets/d/<strong style="color:var(--accent2)">THIS_IS_THE_ID</strong>/edit
-          </div>
+          <div class="hint">From URL: docs.google.com/spreadsheets/d/<strong style="color:var(--accent2)">THIS_IS_THE_ID</strong>/edit</div>
         </div>
 
       </div>
     </div>
 
-    <!-- ── Step 2: Fetch Sheet Data ── -->
+    <!-- Step 2: Load Sheet Data -->
     <div class="step" id="step2">
       <div class="step-header" onclick="openStep('step2')">
         <div class="step-num">2</div>
@@ -358,7 +322,7 @@
       </div>
     </div>
 
-    <!-- ── Step 3: Generate ── -->
+    <!-- Step 3: Generate -->
     <div class="step" id="step3">
       <div class="step-header" onclick="openStep('step3')">
         <div class="step-num">3</div>
@@ -377,12 +341,20 @@
         </div>
         <div class="divider">output</div>
         <div class="result-card" id="resultCard">
-          <div class="result-title">✦ Deck created in Google Slides</div>
+          <div class="result-title">✦ Report created in Google Slides</div>
           <a id="resultLink" href="#" target="_blank" class="result-link">
             <span class="result-link-icon">📑</span>
             <div>
               <div id="resultLinkTitle">Open in Google Slides</div>
               <div class="result-link-sub" id="resultLinkSub">Click to view and share</div>
+            </div>
+            <span style="margin-left:auto;color:var(--green)">→</span>
+          </a>
+          <a id="folderLink" href="#" target="_blank" class="result-link" style="margin-top:8px">
+            <span class="result-link-icon">📁</span>
+            <div>
+              <div id="folderLinkTitle">Open Report Folder</div>
+              <div class="result-link-sub">Contains slides + data sheet</div>
             </div>
             <span style="margin-left:auto;color:var(--green)">→</span>
           </a>
@@ -405,18 +377,18 @@
       <div style="color:var(--text3);font-size:10px">{{EXEC_HEADLINE}} · {{WIN_1}} {{WIN_2}} {{WIN_3}}</div>
       <div style="color:var(--text3);font-size:10px">{{CHALLENGE_1}} {{CHALLENGE_2}} · {{OPP_1}} {{OPP_2}} {{OPP_3}}</div>
       <div style="margin-top:8px">Annual Overview</div>
-      <div style="color:var(--text3);font-size:10px">{{ANNUAL_SALES}} {{ANNUAL_SALES_YOY}} {{ANNUAL_UNITS}}</div>
-      <div style="color:var(--text3);font-size:10px">{{ANNUAL_SESSIONS}} {{ANNUAL_CVR}} {{ANNUAL_BUYBOX}} {{ANNUAL_COMMENTARY}}</div>
-      <div style="margin-top:8px">Quarter Scorecard</div>
-      <div style="color:var(--text3);font-size:10px">{{QTR_SALES}} {{QTR_SALES_QOQ}} {{QTR_UNITS}} {{QTR_UNITS_QOQ}}</div>
-      <div style="color:var(--text3);font-size:10px">{{QTR_BUYBOX}} {{QTR_TRAFFIC}} {{QTR_CVR}}</div>
-      <div style="margin-top:8px">Ads</div>
+      <div style="color:var(--text3);font-size:10px">{{ANNUAL_SALES}} {{ANNUAL_SALES_YOY}} {{ANNUAL_UNITS}} {{ANNUAL_UNITS_YOY}}</div>
+      <div style="color:var(--text3);font-size:10px">{{ANNUAL_SESSIONS}} {{ANNUAL_SESSIONS_YOY}} {{ANNUAL_CVR}} {{ANNUAL_CVR_YOY}}</div>
+      <div style="color:var(--text3);font-size:10px">{{ANNUAL_BUYBOX}} {{ANNUAL_BUYBOX_YOY}} {{ANNUAL_COMMENTARY}}</div>
+      <div style="margin-top:8px">Monthly Overview</div>
+      <div style="color:var(--text3);font-size:10px">{{MON_SALES}} {{MON_SALES_MOM}} {{MON_UNITS}} {{MON_UNITS_MOM}}</div>
+      <div style="color:var(--text3);font-size:10px">{{MON_SESSIONS}} {{MON_SESSIONS_MOM}} {{MON_CVR}} {{MON_CVR_MOM}}</div>
+      <div style="color:var(--text3);font-size:10px">{{MON_BUYBOX}} {{MON_BUYBOX_MOM}} {{MON_COMMENTARY}}</div>
+      <div style="color:var(--text3);font-size:10px">{{MON_ADS_HEADLINE}} {{MON_ADS_BULLET_1}} {{MON_ADS_BULLET_2}}</div>
+      <div style="margin-top:8px">Other slides</div>
+      <div style="color:var(--text3);font-size:10px">{{S_AND_S_COMMENTARY}} · {{BUYBOX_COMMENTARY}} · {{TOP_PRODUCTS_COMMENTARY}}</div>
       <div style="color:var(--text3);font-size:10px">{{ADS_HEADLINE}} {{ADS_COMMENTARY}} {{ADS_QTR_HEADLINE}}</div>
       <div style="color:var(--text3);font-size:10px">{{ADS_QTR_BULLET_1}} {{ADS_QTR_BULLET_2}} {{ADS_QTR_BULLET_3}}</div>
-      <div style="margin-top:8px">Monthly Overview</div>
-      <div style="color:var(--text3);font-size:10px">{{MON_SALES}} {{MON_SALES_MOM}} {{MON_UNITS}} {{MON_SESSIONS}}</div>
-      <div style="color:var(--text3);font-size:10px">{{MON_CVR}} {{MON_BUYBOX}} {{MON_COMMENTARY}}</div>
-      <div style="color:var(--text3);font-size:10px">{{MON_ADS_HEADLINE}} {{MON_ADS_BULLET_1}} {{MON_ADS_BULLET_2}}</div>
     </div>
   </div>
 
@@ -426,45 +398,34 @@
     <div class="setup-steps">
       <div class="setup-step">
         <div class="setup-step-num">1</div>
-        <div class="setup-step-text">
-          <strong>Enable Google APIs</strong> — In <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a>,
-          enable <code>Google Slides API</code> and <code>Google Drive API</code>.
-        </div>
+        <div class="setup-step-text"><strong>Enable Google APIs</strong> — In <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a>, enable <code>Google Slides API</code>, <code>Google Drive API</code> and <code>Google Sheets API</code>.</div>
       </div>
       <div class="setup-step">
         <div class="setup-step-num">2</div>
-        <div class="setup-step-text">
-          <strong>Create OAuth Client ID</strong> — APIs &amp; Services → Credentials → OAuth 2.0 Client ID → Web application.
-          Add your hosting domain to Authorised JavaScript Origins.
-        </div>
+        <div class="setup-step-text"><strong>Create OAuth Client ID</strong> — APIs &amp; Services → Credentials → OAuth 2.0 Client ID → Web application. Add your Vercel domain to Authorised JavaScript Origins.</div>
       </div>
       <div class="setup-step">
         <div class="setup-step-num">3</div>
-        <div class="setup-step-text">
-          <strong>Prepare your template</strong> — Import your PPTX into Google Slides and replace data values with
-          <code>{{PLACEHOLDER}}</code> tags (see guide above). Copy the file ID from the URL.
-        </div>
+        <div class="setup-step-text"><strong>Prepare your template</strong> — Replace data values with <code>{{PLACEHOLDER}}</code> tags (see guide above). Copy the Slides file ID from the URL.</div>
       </div>
       <div class="setup-step">
         <div class="setup-step-num">4</div>
-        <div class="setup-step-text">
-          <strong>Deploy</strong> — Drop <code>index.html</code>, <code>api/brain.js</code>, and <code>vercel.json</code>
-          into <a href="https://vercel.com" target="_blank">Vercel</a> or <a href="https://netlify.com" target="_blank">Netlify</a> (free).
-        </div>
+        <div class="setup-step-text"><strong>Deploy</strong> — Drop <code>index.html</code>, <code>api/brain.js</code>, and <code>vercel.json</code> into <a href="https://vercel.com" target="_blank">Vercel</a> (free).</div>
       </div>
     </div>
   </div>
 
 </div>
-
 <script>
 // ─────────────────────────────────────────────
 // State
 // ─────────────────────────────────────────────
-let googleToken = null;
+let googleToken  = null;
 let parsedData   = null;
 let isRunning    = false;
 let currentMode  = 'anthropic';
+
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 const MODE_HINTS = {
   anthropic: 'Calls <code>/api/v1/anthropic_compatible/v1/messages</code> — Anthropic models only.',
@@ -477,7 +438,7 @@ const MODE_HINTS = {
 // ─────────────────────────────────────────────
 function setMode(mode) {
   currentMode = mode;
-  document.querySelectorAll('.mode-tab').forEach((t, i) => {
+  document.querySelectorAll('.mode-tab').forEach((t,i) => {
     t.classList.toggle('active', ['anthropic','openai','brain'][i] === mode);
   });
   document.querySelectorAll('.model-group').forEach(g => g.classList.remove('visible'));
@@ -514,7 +475,11 @@ async function handleAuthClick() {
   await loadGoogleScript();
   google.accounts.oauth2.initTokenClient({
     client_id: clientId,
-    scope: 'https://www.googleapis.com/auth/presentations https://www.googleapis.com/auth/drive',
+    scope: [
+      'https://www.googleapis.com/auth/presentations',
+      'https://www.googleapis.com/auth/drive',
+      'https://www.googleapis.com/auth/spreadsheets'
+    ].join(' '),
     callback: r => {
       if (r.error) { addLog('orchestrator', 'Google auth error: ' + r.error, 'error'); return; }
       googleToken = r.access_token;
@@ -526,9 +491,28 @@ async function handleAuthClick() {
 }
 
 function updateAuthBadge(ok) {
-  document.getElementById('authBadge').className = ok ? 'auth-badge connected' : 'auth-badge';
-  document.getElementById('authLabel').textContent = ok ? 'Google Connected' : 'Connect Google';
-  // Enable fetch button once Google is connected
+  const banner = document.getElementById('authBanner');
+  const icon   = document.getElementById('authIcon');
+  const title  = document.getElementById('authTitle');
+  const sub    = document.getElementById('authSub');
+  const btn    = document.getElementById('authBtn');
+
+  if (ok) {
+    banner.className = 'auth-banner connected';
+    icon.textContent = '✅';
+    title.textContent = 'Google account connected';
+    sub.textContent   = 'Your account is authenticated — you can now load data and generate reports. Click to disconnect.';
+    btn.textContent   = 'Connected ✓';
+    banner.onclick    = handleAuthClick;
+  } else {
+    banner.className = 'auth-banner';
+    icon.textContent = '🔗';
+    title.textContent = 'Connect your Google account to get started';
+    sub.textContent   = 'Required to read your Sheet, copy the template and create the report in Google Slides';
+    btn.textContent   = 'Connect Google';
+    banner.onclick    = handleAuthClick;
+  }
+
   const fetchBtn = document.getElementById('fetchBtn');
   if (fetchBtn) {
     fetchBtn.disabled = !ok;
@@ -544,7 +528,7 @@ async function fetchSheetData() {
   if (!sheetId) { alert('Enter your Google Sheet ID in Step 1 first.'); return; }
   if (!googleToken) { alert('Connect Google first.'); return; }
 
-  const btn = document.getElementById('fetchBtn');
+  const btn  = document.getElementById('fetchBtn');
   const hint = document.getElementById('fetchHint');
   btn.disabled = true;
   btn.textContent = '⟳ Loading sheet data…';
@@ -552,7 +536,7 @@ async function fetchSheetData() {
   hint.textContent = 'Reading all tabs…';
 
   try {
-    const tabs = ['Sales & Traffic', 'Ads', 'S&S', 'Buybox', 'Daily Sales', 'ASIN Share'];
+    const tabs = ['Sales & Traffic','Ads','S&S','Buybox','Daily Sales','ASIN Share'];
     let combined = '';
     for (const tab of tabs) {
       try {
@@ -561,9 +545,7 @@ async function fetchSheetData() {
           combined += `\n--- Sheet: ${tab} ---\n`;
           combined += rows.map(r => r.join(',')).join('\n');
         }
-      } catch(e) {
-        // tab may not exist, skip
-      }
+      } catch(e) { /* tab may not exist */ }
     }
     if (!combined.trim()) throw new Error('No data found in sheet');
     parsedData = combined.trim();
@@ -609,12 +591,12 @@ function updateRunButton() {
     document.getElementById('brainKey').value.trim() &&
     document.getElementById('templateId').value.trim();
   btn.disabled = !ok || isRunning;
-  if (isRunning)                                                          btn.textContent = '⟳  Running agents…';
-  else if (!googleToken)                                                  btn.textContent = 'Connect Google to continue';
-  else if (!parsedData)                                                   btn.textContent = 'Upload data file to continue';
-  else if (!document.getElementById('brainKey').value.trim())            btn.textContent = 'Enter Brain API key to continue';
-  else if (!document.getElementById('templateId').value.trim())          btn.textContent = 'Enter template ID to continue';
-  else                                                                    btn.textContent = '▶  Generate Google Slides Deck';
+  if (isRunning)                                               btn.textContent = '⟳  Running agents…';
+  else if (!googleToken)                                       btn.textContent = 'Connect Google to continue';
+  else if (!parsedData)                                        btn.textContent = 'Load sheet data to continue';
+  else if (!document.getElementById('brainKey').value.trim()) btn.textContent = 'Enter Brain API key to continue';
+  else if (!document.getElementById('templateId').value.trim()) btn.textContent = 'Enter template ID to continue';
+  else                                                         btn.textContent = '▶  Generate Google Slides Report';
 }
 
 // ─────────────────────────────────────────────
@@ -640,26 +622,21 @@ function setProgress(pct) {
 }
 
 // ─────────────────────────────────────────────
-// Brain API call (routes through proxy)
+// Brain API
 // ─────────────────────────────────────────────
 async function callBrain(systemPrompt, userPrompt, maxTokens=4000) {
   const key   = document.getElementById('brainKey').value.trim();
   const model = getSelectedModel();
   if (!key) throw new Error('Brain API key missing.');
-
   addLog('data', `[${currentMode}] ${model} — sending request…`);
 
-  // Build request body per mode
   let body;
   if (currentMode === 'anthropic') {
-    body = { model, max_tokens: maxTokens, system: systemPrompt,
-             messages: [{ role:'user', content: userPrompt }] };
+    body = { model, max_tokens: maxTokens, system: systemPrompt, messages:[{ role:'user', content:userPrompt }] };
   } else if (currentMode === 'openai') {
-    body = { model, max_tokens: maxTokens,
-             messages: [{ role:'system', content: systemPrompt },
-                        { role:'user',   content: userPrompt }] };
-  } else { // brain native
-    body = { llm: model, message: userPrompt, system_prompt: systemPrompt };
+    body = { model, max_tokens: maxTokens, messages:[{ role:'system', content:systemPrompt },{ role:'user', content:userPrompt }] };
+  } else {
+    body = { llm: model, prompt: userPrompt, system_prompt: systemPrompt };
   }
 
   let res;
@@ -669,9 +646,7 @@ async function callBrain(systemPrompt, userPrompt, maxTokens=4000) {
       headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + key },
       body: JSON.stringify(body),
     });
-  } catch(e) {
-    throw new Error('Network error — is the proxy deployed? ' + e.message);
-  }
+  } catch(e) { throw new Error('Network error — is the proxy deployed? ' + e.message); }
 
   const raw = await res.text();
   let d;
@@ -683,7 +658,6 @@ async function callBrain(systemPrompt, userPrompt, maxTokens=4000) {
     throw new Error(`API error ${res.status}: ${(d.error?.message || JSON.stringify(d)).slice(0,200)}`);
   }
 
-  // Extract text from all three response shapes
   if (currentMode === 'anthropic') {
     if (!d.content?.[0]) throw new Error('Empty Anthropic response.');
     return d.content.map(b => b.text || '').join('');
@@ -692,11 +666,8 @@ async function callBrain(systemPrompt, userPrompt, maxTokens=4000) {
     if (!text) throw new Error('Empty OpenAI response: ' + JSON.stringify(d).slice(0,200));
     return text;
   } else {
-    // Brain native envelope: { id, data: "{ \"response\": \"...\" }" } (data is a JSON string)
     let text = d.response || d.data?.response || d.message || d.content;
-    if (!text && typeof d.data === 'string') {
-      try { text = JSON.parse(d.data)?.response; } catch {}
-    }
+    if (!text && typeof d.data === 'string') { try { text = JSON.parse(d.data)?.response; } catch {} }
     if (!text) throw new Error('Empty Brain native response: ' + JSON.stringify(d).slice(0,200));
     return typeof text === 'string' ? text : JSON.stringify(text);
   }
@@ -704,11 +675,8 @@ async function callBrain(systemPrompt, userPrompt, maxTokens=4000) {
 
 function extractJSON(raw) {
   let s = raw.replace(/```(?:json)?\s*/gi,'').replace(/```/g,'').trim();
-  const start = Math.min(
-    s.indexOf('{') < 0 ? Infinity : s.indexOf('{'),
-    s.indexOf('[') < 0 ? Infinity : s.indexOf('[')
-  );
-  if (start === Infinity) throw new Error('No JSON found in response');
+  const start = Math.min(s.indexOf('{') < 0 ? Infinity : s.indexOf('{'), s.indexOf('[') < 0 ? Infinity : s.indexOf('['));
+  if (start === Infinity) throw new Error('No JSON found');
   s = s.slice(start);
   const open = s[0], close = open==='{' ? '}' : ']';
   let depth=0, end=-1;
@@ -716,24 +684,21 @@ function extractJSON(raw) {
     if (s[i]===open) depth++; else if (s[i]===close && --depth===0) { end=i; break; }
   }
   if (end<0) throw new Error('Incomplete JSON');
-  return JSON.parse(s.slice(0, end+1));
+  return JSON.parse(s.slice(0,end+1));
 }
 
 // ─────────────────────────────────────────────
 // Google Sheets API
 // ─────────────────────────────────────────────
-const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
 function monthLabel(monthName, year) {
-  // e.g. "Mar 26"
-  const mIdx = MONTH_NAMES.findIndex(m => monthName.startsWith(m) || monthName.toLowerCase().startsWith(m.toLowerCase()));
+  const mIdx = MONTH_NAMES.findIndex(m => monthName.toLowerCase().startsWith(m.toLowerCase()));
   const yy = String(year).slice(-2);
   return `${MONTH_NAMES[mIdx >= 0 ? mIdx : 0]} ${yy}`;
 }
 
 async function sheetsGet(sheetId, range) {
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}`;
-  const r = await fetch(url, { headers: { 'Authorization': 'Bearer ' + googleToken } });
+  const r = await fetch(url, { headers:{ 'Authorization':'Bearer ' + googleToken } });
   const d = await r.json();
   if (d.error) throw new Error('Sheets read error: ' + d.error.message);
   return d.values || [];
@@ -743,8 +708,8 @@ async function sheetsUpdate(sheetId, range, values) {
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;
   const r = await fetch(url, {
     method: 'PUT',
-    headers: { 'Authorization': 'Bearer ' + googleToken, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ range, majorDimension: 'ROWS', values })
+    headers: { 'Authorization':'Bearer ' + googleToken, 'Content-Type':'application/json' },
+    body: JSON.stringify({ range, majorDimension:'ROWS', values })
   });
   const d = await r.json();
   if (d.error) throw new Error('Sheets write error: ' + d.error.message);
@@ -753,119 +718,118 @@ async function sheetsUpdate(sheetId, range, values) {
 
 function parseNum(val) {
   if (!val) return null;
-  return parseFloat(String(val).replace(/[$,%]/g, '')) || null;
+  return parseFloat(String(val).replace(/[$,%]/g,'')) || null;
 }
 
 async function findMonthRow(sheetId, tabName, monthName, year) {
   const label = monthLabel(monthName, year);
-  const rows = await sheetsGet(sheetId, `${tabName}!A:A`);
-  for (let i = 0; i < rows.length; i++) {
-    if (rows[i][0] && rows[i][0].toString().trim() === label) return i + 1; // 1-indexed
+  const rows  = await sheetsGet(sheetId, `${tabName}!A:A`);
+  for (let i=0; i<rows.length; i++) {
+    if (rows[i][0]?.toString().trim() === label) return i + 1;
   }
   return null;
+}
+
+async function createFolder(name, parentId) {
+  const meta = {
+    name,
+    mimeType: 'application/vnd.google-apps.folder',
+    ...(parentId ? { parents: [parentId] } : {})
+  };
+  const r = await fetch('https://www.googleapis.com/drive/v3/files?supportsAllDrives=true', {
+    method: 'POST',
+    headers: { 'Authorization':'Bearer ' + googleToken, 'Content-Type':'application/json' },
+    body: JSON.stringify(meta)
+  });
+  const d = await r.json();
+  if (d.error) throw new Error('Folder creation failed: ' + d.error.message);
+  return d.id;
+}
+
+async function moveFileTo(fileId, folderId) {
+  // Get current parents first
+  const meta = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?fields=parents&supportsAllDrives=true`, {
+    headers: { 'Authorization':'Bearer ' + googleToken }
+  }).then(r => r.json());
+  const prevParents = (meta.parents || []).join(',');
+  const r = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?addParents=${folderId}&removeParents=${prevParents}&supportsAllDrives=true`, {
+    method: 'PATCH',
+    headers: { 'Authorization':'Bearer ' + googleToken, 'Content-Type':'application/json' },
+    body: JSON.stringify({})
+  });
+  const d = await r.json();
+  if (d.error) throw new Error('Move failed: ' + d.error.message);
+  return d;
+}
+
+async function copySheet(sheetId, title, folderId) {
+  const body = { name: title };
+  if (folderId) body.parents = [folderId];
+  const r = await fetch(`https://www.googleapis.com/drive/v3/files/${sheetId}/copy?supportsAllDrives=true`, {
+    method: 'POST',
+    headers: { 'Authorization':'Bearer ' + googleToken, 'Content-Type':'application/json' },
+    body: JSON.stringify(body)
+  });
+  const d = await r.json();
+  if (d.error) throw new Error('Sheet copy failed: ' + d.error.message);
+  return d.id;
+}
+
+async function clearFutureRows(sheetId, tabName, fromRow, cols, totalRows) {
+  if (!fromRow) return;
+  const startRow = fromRow + 1;
+  const endRow   = fromRow + totalRows;
+  for (const col of cols) {
+    const blanks = Array.from({ length: endRow - startRow + 1 }, () => ['']);
+    try { await sheetsUpdate(sheetId, `${tabName}!${col}${startRow}:${col}${endRow}`, blanks); }
+    catch(e) { /* non-fatal */ }
+  }
 }
 
 async function updateSheetData(sheetId, extracted, month, year) {
   addLog('writer', 'Updating Google Sheet with current month data…');
 
-  const tabs = [
-    { name: 'Sales & Traffic', updates: [] },
-    { name: 'Buybox',          updates: [] },
-    { name: 'S&S',             updates: [] },
-  ];
+  const stRow = await findMonthRow(sheetId, 'Sales & Traffic', month, year);
+  const bbRow = await findMonthRow(sheetId, 'Buybox', month, year);
 
-  // ── Find target row in each tab ──
-  for (const tab of tabs) {
-    const row = await findMonthRow(sheetId, tab.name, month, year);
-    if (!row) {
-      addLog('writer', `⚠ "${monthLabel(month, year)}" not found in ${tab.name} tab`, 'error');
-      continue;
-    }
-    addLog('writer', `Found ${monthLabel(month, year)} at row ${row} in ${tab.name}`);
-    tab.row = row;
-  }
-
-  // ── Sales & Traffic ──
-  const st = tabs.find(t => t.name === 'Sales & Traffic');
-  if (st?.row) {
+  if (stRow) {
+    addLog('writer', `Found ${monthLabel(month,year)} at row ${stRow} in Sales & Traffic`);
     const pairs = [
-      { col: 'B', val: parseNum(extracted.MON_SALES) },
-      { col: 'F', val: parseNum(extracted.MON_UNITS) },
-      { col: 'N', val: parseNum(extracted.MON_SALES) && parseNum(extracted.MON_UNITS)
-          ? +(parseNum(extracted.MON_SALES) / parseNum(extracted.MON_UNITS)).toFixed(2) : null },
-      { col: 'P', val: parseNum(extracted.MON_SESSIONS) },
-      { col: 'Q', val: extracted.MON_CVR ? parseNum(extracted.MON_CVR) / 100 : null },
-      { col: 'T', val: extracted.MON_BUYBOX ? parseNum(extracted.MON_BUYBOX) / 100 : null },
+      { col:'B', val: parseNum(extracted.MON_SALES) },
+      { col:'F', val: parseNum(extracted.MON_UNITS) },
+      { col:'N', val: parseNum(extracted.MON_SALES) && parseNum(extracted.MON_UNITS)
+          ? +(parseNum(extracted.MON_SALES)/parseNum(extracted.MON_UNITS)).toFixed(2) : null },
+      { col:'P', val: parseNum(extracted.MON_SESSIONS) },
+      { col:'Q', val: extracted.MON_CVR ? parseNum(extracted.MON_CVR)/100 : null },
+      { col:'T', val: extracted.MON_BUYBOX ? parseNum(extracted.MON_BUYBOX)/100 : null },
     ];
     for (const { col, val } of pairs) {
-      if (val !== null && val !== undefined && !isNaN(val)) {
-        await sheetsUpdate(sheetId, `Sales & Traffic!${col}${st.row}`, [[val]]);
-      }
+      if (val !== null && val !== undefined && !isNaN(val))
+        await sheetsUpdate(sheetId, `Sales & Traffic!${col}${stRow}`, [[val]]);
     }
-    addLog('writer', `Sales & Traffic updated ✓`);
+    addLog('writer', 'Sales & Traffic updated ✓');
+  } else {
+    addLog('writer', `⚠ ${monthLabel(month,year)} not found in Sales & Traffic`, 'error');
   }
 
-  // ── Buybox ──
-  const bb = tabs.find(t => t.name === 'Buybox');
-  if (bb?.row && extracted.MON_BUYBOX) {
-    const val = parseNum(extracted.MON_BUYBOX) / 100;
-    await sheetsUpdate(sheetId, `Buybox!B${bb.row}`, [[val]]);
-    addLog('writer', `Buybox updated ✓`);
+  if (bbRow && extracted.MON_BUYBOX) {
+    await sheetsUpdate(sheetId, `Buybox!B${bbRow}`, [[parseNum(extracted.MON_BUYBOX)/100]]);
+    addLog('writer', 'Buybox updated ✓');
   }
 
   addLog('writer', 'Sheet update complete ✓');
 }
 
-
-
-async function refreshSlidesCharts(presentationId) {
-  addLog('writer', 'Waiting for Sheet to sync…');
-  await new Promise(r => setTimeout(r, 4000));
-
-  addLog('writer', 'Refreshing linked charts in slides…');
-  const r = await fetch(`https://slides.googleapis.com/v1/presentations/${presentationId}`, {
-    headers: { 'Authorization': 'Bearer ' + googleToken }
-  });
-  const pres = await r.json();
-  if (pres.error) throw new Error('Could not read presentation: ' + pres.error.message);
-
-  const requests = [];
-  for (const slide of (pres.slides || [])) {
-    for (const el of (slide.pageElements || [])) {
-      if (!el.sheetsChart) continue;
-      requests.push({ refreshSheetsChart: { objectId: el.objectId } });
-    }
-  }
-
-  if (!requests.length) {
-    addLog('writer', 'No linked charts found to refresh');
-    return;
-  }
-
-  // Send in batches of 10
-  for (let i = 0; i < requests.length; i += 10) {
-    const batch = requests.slice(i, i + 10);
-    const res = await fetch(`https://slides.googleapis.com/v1/presentations/${presentationId}:batchUpdate`, {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + googleToken, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ requests: batch })
-    });
-    const d = await res.json();
-    if (d.error) throw new Error('Chart refresh failed: ' + d.error.message);
-  }
-  addLog('writer', `${requests.length} chart(s) refreshed ✓`);
-}
-
 // ─────────────────────────────────────────────
 // Google Slides API
 // ─────────────────────────────────────────────
-async function copyTemplate(templateId, title) {
-  // supportsAllDrives=true is required for Shared Drive / company Drive files
-  const url = `https://www.googleapis.com/drive/v3/files/${templateId}/copy?supportsAllDrives=true&includeItemsFromAllDrives=true`;
-  const r = await fetch(url, {
-    method:'POST',
-    headers:{ 'Authorization':'Bearer '+googleToken, 'Content-Type':'application/json' },
-    body: JSON.stringify({ name: title }),
+async function copyTemplate(templateId, title, folderId) {
+  const body = { name: title };
+  if (folderId) body.parents = [folderId];
+  const r = await fetch(`https://www.googleapis.com/drive/v3/files/${templateId}/copy?supportsAllDrives=true&includeItemsFromAllDrives=true`, {
+    method: 'POST',
+    headers: { 'Authorization':'Bearer '+googleToken, 'Content-Type':'application/json' },
+    body: JSON.stringify(body),
   });
   const d = await r.json();
   if (d.error) throw new Error('Drive copy failed: ' + d.error.message);
@@ -875,8 +839,8 @@ async function copyTemplate(templateId, title) {
 async function batchReplaceText(presentationId, replacements) {
   const requests = Object.entries(replacements)
     .filter(([,v]) => v !== undefined && v !== null && v !== '')
-    .map(([k, v]) => ({ replaceAllText: {
-      containsText: { text: `{{${k}}}`, matchCase: false },
+    .map(([k,v]) => ({ replaceAllText:{
+      containsText:{ text:`{{${k}}}`, matchCase:false },
       replaceText: String(v)
     }}));
   if (!requests.length) return;
@@ -884,11 +848,42 @@ async function batchReplaceText(presentationId, replacements) {
     const r = await fetch(`https://slides.googleapis.com/v1/presentations/${presentationId}:batchUpdate`, {
       method:'POST',
       headers:{ 'Authorization':'Bearer '+googleToken, 'Content-Type':'application/json' },
-      body: JSON.stringify({ requests: requests.slice(i, i+100) }),
+      body: JSON.stringify({ requests: requests.slice(i,i+100) }),
     });
     const d = await r.json();
     if (d.error) throw new Error('Slides update failed: ' + d.error.message);
   }
+}
+
+async function refreshSlidesCharts(presentationId) {
+  addLog('writer', 'Waiting for Sheet to sync…');
+  await new Promise(r => setTimeout(r, 4000));
+  addLog('writer', 'Refreshing linked charts in slides…');
+
+  const r = await fetch(`https://slides.googleapis.com/v1/presentations/${presentationId}`, {
+    headers: { 'Authorization':'Bearer ' + googleToken }
+  });
+  const pres = await r.json();
+  if (pres.error) throw new Error('Could not read presentation: ' + pres.error.message);
+
+  const requests = [];
+  for (const slide of (pres.slides || [])) {
+    for (const el of (slide.pageElements || [])) {
+      if (el.sheetsChart) requests.push({ refreshSheetsChart:{ objectId: el.objectId } });
+    }
+  }
+  if (!requests.length) { addLog('writer', 'No linked charts found'); return; }
+
+  for (let i=0; i<requests.length; i+=10) {
+    const res = await fetch(`https://slides.googleapis.com/v1/presentations/${presentationId}:batchUpdate`, {
+      method:'POST',
+      headers:{ 'Authorization':'Bearer '+googleToken, 'Content-Type':'application/json' },
+      body: JSON.stringify({ requests: requests.slice(i,i+10) }),
+    });
+    const d = await res.json();
+    if (d.error) throw new Error('Chart refresh failed: ' + d.error.message);
+  }
+  addLog('writer', `${requests.length} chart(s) refreshed ✓`);
 }
 
 // ─────────────────────────────────────────────
@@ -906,14 +901,16 @@ async function runAgents() {
   const month      = document.getElementById('month').value;
   const year       = document.getElementById('year').value;
   const templateId = document.getElementById('templateId').value.trim();
+  const sheetId    = document.getElementById('sheetId').value.trim();
+  const deckTitle  = `${brand} Monthly Report — ${month} ${year}`;
 
   try {
     // ── Orchestrator ──
     addLog('orchestrator', `Planning ${brand} ${month} ${year} Monthly Report… [${currentMode} / ${getSelectedModel()}]`);
     setProgress(10);
     const orchRaw = await callBrain(
-      `You are a QBR Orchestrator. Analyse the Excel data and identify the quarter. Return ONLY raw JSON: {"summary":string,"quarter":string}`,
-      `Brand:${brand} Period:${month} ${year}\nExcel:\n${parsedData.slice(0,3000)}`
+      `You are an Orchestrator for a marketplace monthly report. Analyse the data and identify the quarter. Return ONLY raw JSON: {"summary":string,"quarter":string}`,
+      `Brand:${brand} Period:${month} ${year}\nData:\n${parsedData.slice(0,3000)}`
     );
     let plan;
     try { plan = extractJSON(orchRaw); } catch { plan = { summary:'Data analysed', quarter:'Q1' }; }
@@ -922,11 +919,14 @@ async function runAgents() {
     setProgress(25);
 
     // ── Data Agent ──
-    addLog('data', 'Extracting metrics from Excel…');
+    addLog('data', 'Extracting metrics from Sheet data…');
     const dataRaw = await callBrain(
-      `You are a Data Agent extracting marketplace metrics for a QBR deck.
+      `You are a Data Agent extracting marketplace metrics for a monthly report deck.
 Return ONLY raw JSON (no markdown, no code fences). Use "" for missing text, 0 for missing numbers.
 Format values ready for slides (e.g. "$42,561", "+109%", "11.3%").
+For MoM (month-over-month) values: calculate the % change from the PREVIOUS month row to the current month row.
+Format MoM as "+X.X%" or "-X.X%" — never as "0.0%" unless truly unchanged.
+For PP (percentage point) changes on CVR and Buybox, format as "+X.XPP" or "-X.XPP".
 
 Return this exact structure:
 {
@@ -949,58 +949,80 @@ Return this exact structure:
   "MON_SESSIONS":"","MON_SESSIONS_MOM":"","MON_CVR":"","MON_CVR_MOM":"",
   "MON_BUYBOX":"","MON_BUYBOX_MOM":"","MON_COMMENTARY":"",
   "MON_ADS_HEADLINE":"","MON_ADS_BULLET_1":"","MON_ADS_BULLET_2":"",
-  "MON_UNITS_MOM":"",
-  "S_AND_S_COMMENTARY":"",
-  "BUYBOX_COMMENTARY":"",
-  "TOP_PRODUCTS_COMMENTARY":""
+  "S_AND_S_COMMENTARY":"","BUYBOX_COMMENTARY":"","TOP_PRODUCTS_COMMENTARY":""
 }`,
-      `Brand:${brand} Period:${month} ${year}\nExcel data:\n${parsedData.slice(0,7000)}`,
+      `Brand:${brand} Period:${month} ${year}\nSheet data:\n${parsedData.slice(0,7000)}`,
       5000
     );
 
     let extracted;
     try { extracted = extractJSON(dataRaw); }
-    catch(e) { addLog('data', `JSON parse warning: ${e.message} — using partial data`, 'error'); extracted = {}; }
+    catch(e) { addLog('data', `JSON parse warning: ${e.message}`, 'error'); extracted = {}; }
     extracted.BRAND   = brand;
     extracted.MONTH   = month;
     extracted.YEAR    = year;
     extracted.QUARTER = extracted.QUARTER || plan.quarter || 'Q1';
     addLog('data', `${Object.values(extracted).filter(v => v && v !== '0').length} fields extracted`);
-    setProgress(55);
+    setProgress(50);
 
-    // ── Writer Agent ──
-    // ── Update linked Google Sheet ──
-    const sheetId = document.getElementById('sheetId').value.trim();
+    // ── Create output folder ──
+    addLog('writer', `Creating folder "${deckTitle}"…`);
+    const folderId = await createFolder(deckTitle);
+    addLog('writer', `Folder created ✓`);
+
+    // ── Copy Sheet into folder and update data ──
+    let workingSheetId = sheetId;
     if (sheetId) {
-      await updateSheetData(sheetId, extracted, month, year, parsedData);
+      addLog('writer', 'Copying linked Sheet into folder…');
+      workingSheetId = await copySheet(sheetId, `${deckTitle} — Data`, folderId);
+      addLog('writer', 'Sheet copy created ✓');
+
+      await updateSheetData(workingSheetId, extracted, month, year);
+
+      // Trim chart data to selected month in the COPY only
+      addLog('writer', `Trimming charts to ${month} ${year}…`);
+      const stRow = await findMonthRow(workingSheetId, 'Sales & Traffic', month, year);
+      const bbRow = await findMonthRow(workingSheetId, 'Buybox', month, year);
+      if (stRow) await clearFutureRows(workingSheetId, 'Sales & Traffic', stRow, ['B','C','D','F','P','Q','T'], 20);
+      if (bbRow) await clearFutureRows(workingSheetId, 'Buybox', bbRow, ['B'], 20);
+
+      // Trim Daily Sales to correct number of days
+      const mIdx = MONTH_NAMES.findIndex(m => month.toLowerCase().startsWith(m.toLowerCase()));
+      const daysInMonth = new Date(parseInt(year), mIdx + 1, 0).getDate();
+      await clearFutureRows(workingSheetId, 'Daily Sales', daysInMonth + 1, ['B'], 10);
+      addLog('writer', `Charts trimmed to ${daysInMonth} days ✓`);
     }
     setProgress(65);
 
-    addLog('writer', 'Copying template in Google Drive…');
-    const deckTitle = `${brand} Monthly Report — ${month} ${year}`;
-    const newId     = await copyTemplate(templateId, deckTitle);
+    // ── Copy Slides template into folder ──
+    addLog('writer', 'Copying template into folder…');
+    const newId = await copyTemplate(templateId, deckTitle, folderId);
     addLog('writer', `Deck created: "${deckTitle}"`);
     setProgress(70);
 
-    // ── Refresh charts in copied deck ──
+    // ── Refresh charts ──
     if (sheetId) await refreshSlidesCharts(newId);
     setProgress(85);
 
+    // ── Replace text placeholders ──
     addLog('writer', 'Injecting data into slides…');
     await batchReplaceText(newId, extracted);
     addLog('writer', `${Object.keys(extracted).length} placeholders replaced`);
     setProgress(95);
 
     const url = `https://docs.google.com/presentation/d/${newId}/edit`;
-    addLog('writer', '✓ Done — deck is live!', 'success');
+    const folderUrl = `https://drive.google.com/drive/folders/${folderId}`;
+    addLog('writer', '✓ Done — report is live!', 'success');
     setProgress(100);
 
-    document.getElementById('resultLink').href    = url;
+    document.getElementById('resultLink').href             = url;
     document.getElementById('resultLinkTitle').textContent = deckTitle;
-    document.getElementById('resultLinkSub').textContent   = `ID: ${newId.slice(0,24)}…`;
-    document.getElementById('resultCard').className  = 'result-card visible';
-    document.getElementById('step3Status').textContent    = 'Done';
-    document.getElementById('step3Status').className      = 'step-status done';
+    document.getElementById('resultLinkSub').textContent   = `Click to open in Google Slides`;
+    document.getElementById('folderLink').href             = folderUrl;
+    document.getElementById('folderLinkTitle').textContent = `📁 ${deckTitle}`;
+    document.getElementById('resultCard').className        = 'result-card visible';
+    document.getElementById('step3Status').textContent     = 'Done';
+    document.getElementById('step3Status').className       = 'step-status done';
     document.getElementById('step3').className             = 'step done active';
 
   } catch(err) {
@@ -1027,7 +1049,6 @@ function toggleGuide() {
   g.style.display = g.style.display === 'none' ? 'block' : 'none';
 }
 
-// Init
 document.getElementById('month').value = new Date().toLocaleString('default',{month:'long'});
 updateRunButton();
 </script>
