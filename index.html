@@ -977,11 +977,11 @@ Return this exact structure:
       const mIdx = MONTH_NAMES.findIndex(m => month.toLowerCase().startsWith(m.toLowerCase()));
       const daysInMonth = new Date(parseInt(year), mIdx + 1, 0).getDate();
 
-      // Row offset: row 1 = headers, row 2 = day 1, so day N = row N+1
-      // Clear from row (daysInMonth + 2) onwards to preserve all valid days
-      const trimFromRow = daysInMonth + 2;
-      await clearFutureRows(workingSheetId, 'Daily Sales', trimFromRow - 1, ['B'], 10);
-      await clearFutureRows(workingSheetId, 'Buybox, CR, Sessions', trimFromRow - 1, ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U'], 10);
+      // Row 1 = headers, Row 2 = Day 1, Row N+1 = Day N
+      // Pass daysInMonth + 1 as fromRow so clearFutureRows clears from daysInMonth + 2 onwards
+      const lastDayRow = daysInMonth + 1; // e.g. Feb: day 28 = row 29, so lastDayRow = 29
+      await clearFutureRows(workingSheetId, 'Daily Sales', lastDayRow, ['B'], 10);
+      await clearFutureRows(workingSheetId, 'Buybox, CR, Sessions', lastDayRow, ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U'], 10);
 
       addLog('writer', `Charts trimmed to ${daysInMonth} days ✓`);
     }
