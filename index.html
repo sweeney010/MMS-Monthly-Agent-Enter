@@ -972,7 +972,7 @@ Return this exact structure:
       addLog('writer', `Trimming charts to ${month} ${year}…`);
       const stRow = await findMonthRow(workingSheetId, 'Monthly Sales & Traffic', month, year);
       const bbRow = await findMonthRow(workingSheetId, 'Buybox, CR, Sessions', month, year);
-      if (stRow) await clearFutureRows(workingSheetId, 'Monthly Sales & Traffic', stRow, ['B','C','D','F','P','Q','T'], 20);
+      if (stRow) await clearFutureRows(workingSheetId, 'Monthly Sales & Traffic', stRow, ['B','C','D','F','G','P','Q','R','T'], 20);
       if (bbRow) await clearFutureRows(workingSheetId, 'Buybox, CR, Sessions', bbRow, ['B'], 20);
       const mIdx = MONTH_NAMES.findIndex(m => month.toLowerCase().startsWith(m.toLowerCase()));
       const daysInMonth = new Date(parseInt(year), mIdx + 1, 0).getDate();
