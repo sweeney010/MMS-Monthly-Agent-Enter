@@ -666,8 +666,11 @@ async function callBrain(systemPrompt, userPrompt, maxTokens=4000) {
     if (!text) throw new Error('Empty OpenAI response: ' + JSON.stringify(d).slice(0,200));
     return text;
   } else {
-    // Brain native: response field may be top-level or nested in data
-    const text = d.response || d.data?.response || d.message || d.content;
+    // Brain native envelope: { id, data: "{ \"response\": \"...\" }" } (data is a JSON string)
+    let text = d.response || d.data?.response || d.message || d.content;
+    if (!text && typeof d.data === 'string') {
+      try { text = JSON.parse(d.data)?.response; } catch {}
+    }
     if (!text) throw new Error('Empty Brain native response: ' + JSON.stringify(d).slice(0,200));
     return typeof text === 'string' ? text : JSON.stringify(text);
   }
@@ -694,7 +697,9 @@ function extractJSON(raw) {
 // Google Slides API
 // ─────────────────────────────────────────────
 async function copyTemplate(templateId, title) {
-  const r = await fetch(`https://www.googleapis.com/drive/v3/files/${templateId}/copy`, {
+  // supportsAllDrives=true is required for Shared Drive / company Drive files
+  const url = `https://www.googleapis.com/drive/v3/files/${templateId}/copy?supportsAllDrives=true&includeItemsFromAllDrives=true`;
+  const r = await fetch(url, {
     method:'POST',
     headers:{ 'Authorization':'Bearer '+googleToken, 'Content-Type':'application/json' },
     body: JSON.stringify({ name: title }),
