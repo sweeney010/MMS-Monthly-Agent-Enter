@@ -730,6 +730,15 @@ async function findMonthRow(sheetId, tabName, monthName, year) {
   return null;
 }
 
+async function getFileParent(fileId) {
+  const r = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?fields=parents&supportsAllDrives=true&includeItemsFromAllDrives=true`, {
+    headers: { 'Authorization':'Bearer ' + googleToken }
+  });
+  const d = await r.json();
+  if (d.error) throw new Error('Could not get file parent: ' + d.error.message);
+  return d.parents?.[0] || null;
+}
+
 async function createFolder(name, parentId) {
   const meta = {
     name,
@@ -965,10 +974,11 @@ Return this exact structure:
     addLog('data', `${Object.values(extracted).filter(v => v && v !== '0').length} fields extracted`);
     setProgress(50);
 
-    // ── Create output folder ──
-    addLog('writer', `Creating folder "${deckTitle}"…`);
-    const folderId = await createFolder(deckTitle);
-    addLog('writer', `Folder created ✓`);
+    // ── Find template's parent folder, create output folder there ──
+    addLog('writer', `Creating folder in same location as template…`);
+    const templateParentId = await getFileParent(templateId);
+    const folderId = await createFolder(deckTitle, templateParentId);
+    addLog('writer', `Folder "${deckTitle}" created ✓`);
 
     // ── Copy Sheet into folder and update data ──
     let workingSheetId = sheetId;
