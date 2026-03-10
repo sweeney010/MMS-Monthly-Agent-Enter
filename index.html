@@ -326,6 +326,16 @@
           From URL: docs.google.com/presentation/d/<strong style="color:var(--accent2)">THIS_IS_THE_ID</strong>/edit
         </div>
 
+        <div class="config-box" style="margin-top:12px">
+          <div class="config-box-title">Linked Google Sheet ID</div>
+          <div class="field">
+            <input type="text" id="sheetId" placeholder="1x2PjcBsOPIb_2HOzYuzEBU9JURdpiGdzL9DO4k1CHY0" value="1x2PjcBsOPIb_2HOzYuzEBU9JURdpiGdzL9DO4k1CHY0"/>
+          </div>
+          <div class="hint">
+            The Google Sheet linked to your chart data. From URL: docs.google.com/spreadsheets/d/<strong style="color:var(--accent2)">THIS_IS_THE_ID</strong>/edit
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -694,6 +704,133 @@ function extractJSON(raw) {
 }
 
 // ─────────────────────────────────────────────
+// Google Sheets API
+// ─────────────────────────────────────────────
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function monthLabel(monthName, year) {
+  // e.g. "Mar 26"
+  const mIdx = MONTH_NAMES.findIndex(m => monthName.startsWith(m) || monthName.toLowerCase().startsWith(m.toLowerCase()));
+  const yy = String(year).slice(-2);
+  return `${MONTH_NAMES[mIdx >= 0 ? mIdx : 0]} ${yy}`;
+}
+
+async function sheetsGet(sheetId, range) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}`;
+  const r = await fetch(url, { headers: { 'Authorization': 'Bearer ' + googleToken } });
+  const d = await r.json();
+  if (d.error) throw new Error('Sheets read error: ' + d.error.message);
+  return d.values || [];
+}
+
+async function sheetsUpdate(sheetId, range, values) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;
+  const r = await fetch(url, {
+    method: 'PUT',
+    headers: { 'Authorization': 'Bearer ' + googleToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ range, majorDimension: 'ROWS', values })
+  });
+  const d = await r.json();
+  if (d.error) throw new Error('Sheets write error: ' + d.error.message);
+  return d;
+}
+
+function parseNum(val) {
+  if (!val) return null;
+  return parseFloat(String(val).replace(/[$,%]/g, '')) || null;
+}
+
+async function findMonthRow(sheetId, tabName, monthName, year) {
+  const label = monthLabel(monthName, year);
+  const rows = await sheetsGet(sheetId, `${tabName}!A:A`);
+  for (let i = 0; i < rows.length; i++) {
+    if (rows[i][0] && rows[i][0].toString().trim() === label) return i + 1; // 1-indexed
+  }
+  return null;
+}
+
+async function updateSheetData(sheetId, extracted, month, year, rawData) {
+  addLog('writer', 'Updating linked Google Sheet…');
+
+  // ── Sales & Traffic tab ──
+  const stRow = await findMonthRow(sheetId, 'Sales & Traffic', month, year);
+  if (stRow) {
+    const sales   = parseNum(extracted.MON_SALES);
+    const budget  = parseNum(extracted.QTR_SALES) ? null : null; // keep existing budget
+    const units   = parseNum(extracted.MON_UNITS);
+    const sessions= parseNum(extracted.MON_SESSIONS);
+    const cvr     = parseNum(extracted.MON_CVR);
+    const buybox  = parseNum(extracted.MON_BUYBOX);
+    const asp     = parseNum(extracted.MON_SALES) && parseNum(extracted.MON_UNITS)
+                    ? (parseNum(extracted.MON_SALES) / parseNum(extracted.MON_UNITS)).toFixed(2)
+                    : null;
+
+    // Update cols B(sales), F(units), P(sessions), Q(cvr), T(buybox)
+    const updates = [];
+    if (sales)    updates.push({ range: `Sales & Traffic!B${stRow}`, values: [[sales]] });
+    if (units)    updates.push({ range: `Sales & Traffic!F${stRow}`, values: [[units]] });
+    if (sessions) updates.push({ range: `Sales & Traffic!P${stRow}`, values: [[sessions]] });
+    if (cvr)      updates.push({ range: `Sales & Traffic!Q${stRow}`, values: [[parseNum(extracted.MON_CVR) / 100]] });
+    if (buybox)   updates.push({ range: `Sales & Traffic!T${stRow}`, values: [[parseNum(extracted.MON_BUYBOX) / 100]] });
+    if (asp)      updates.push({ range: `Sales & Traffic!N${stRow}`, values: [[asp]] });
+
+    for (const u of updates) {
+      await sheetsUpdate(sheetId, u.range, u.values);
+    }
+    addLog('writer', `Sales & Traffic row ${stRow} updated ✓`);
+  } else {
+    addLog('writer', `Could not find ${monthLabel(month, year)} in Sales & Traffic tab`, 'error');
+  }
+
+  // ── Buybox tab ──
+  const bbRow = await findMonthRow(sheetId, 'Buybox', month, year);
+  if (bbRow && extracted.MON_BUYBOX) {
+    await sheetsUpdate(sheetId, `Buybox!B${bbRow}`, [[parseNum(extracted.MON_BUYBOX) / 100]]);
+    addLog('writer', `Buybox row ${bbRow} updated ✓`);
+  }
+
+  // ── Daily Sales tab — update col B with daily data if available ──
+  // Daily sales are rows 2-32 (day 1-31), always col B for current month
+  // We skip this if we can't extract daily data from the raw Excel
+  addLog('writer', 'Sheet update complete ✓');
+}
+
+async function refreshSlidesCharts(presentationId) {
+  addLog('writer', 'Refreshing linked charts in slides…');
+  // Get all slides and find chart objects
+  const r = await fetch(`https://slides.googleapis.com/v1/presentations/${presentationId}`, {
+    headers: { 'Authorization': 'Bearer ' + googleToken }
+  });
+  const pres = await r.json();
+  if (pres.error) throw new Error('Could not read presentation: ' + pres.error.message);
+
+  const requests = [];
+  for (const slide of (pres.slides || [])) {
+    for (const el of (slide.pageElements || [])) {
+      if (el.sheetsChart) {
+        requests.push({
+          refreshSheetsChart: { objectId: el.objectId }
+        });
+      }
+    }
+  }
+
+  if (!requests.length) {
+    addLog('writer', 'No linked charts found to refresh');
+    return;
+  }
+
+  const res = await fetch(`https://slides.googleapis.com/v1/presentations/${presentationId}:batchUpdate`, {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + googleToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ requests })
+  });
+  const d = await res.json();
+  if (d.error) throw new Error('Chart refresh failed: ' + d.error.message);
+  addLog('writer', `${requests.length} chart(s) refreshed ✓`);
+}
+
+// ─────────────────────────────────────────────
 // Google Slides API
 // ─────────────────────────────────────────────
 async function copyTemplate(templateId, title) {
@@ -802,11 +939,22 @@ Return this exact structure:
     setProgress(55);
 
     // ── Writer Agent ──
+    // ── Update linked Google Sheet ──
+    const sheetId = document.getElementById('sheetId').value.trim();
+    if (sheetId) {
+      await updateSheetData(sheetId, extracted, month, year, parsedData);
+    }
+    setProgress(65);
+
     addLog('writer', 'Copying template in Google Drive…');
     const deckTitle = `${brand} QBR — ${month} ${year}`;
     const newId     = await copyTemplate(templateId, deckTitle);
     addLog('writer', `Deck created: "${deckTitle}"`);
     setProgress(70);
+
+    // ── Refresh charts in copied deck ──
+    if (sheetId) await refreshSlidesCharts(newId);
+    setProgress(85);
 
     addLog('writer', 'Injecting data into slides…');
     await batchReplaceText(newId, extracted);
