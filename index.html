@@ -765,69 +765,96 @@ async function findMonthRow(sheetId, tabName, monthName, year) {
   return null;
 }
 
-async function updateSheetData(sheetId, extracted, month, year, rawData) {
-  addLog('writer', 'Updating linked Google Sheet…');
+async function updateSheetData(sheetId, extracted, month, year) {
+  addLog('writer', 'Updating Google Sheet with current month data…');
 
-  // ── Sales & Traffic tab ──
-  const stRow = await findMonthRow(sheetId, 'Sales & Traffic', month, year);
-  if (stRow) {
-    const sales   = parseNum(extracted.MON_SALES);
-    const budget  = parseNum(extracted.QTR_SALES) ? null : null; // keep existing budget
-    const units   = parseNum(extracted.MON_UNITS);
-    const sessions= parseNum(extracted.MON_SESSIONS);
-    const cvr     = parseNum(extracted.MON_CVR);
-    const buybox  = parseNum(extracted.MON_BUYBOX);
-    const asp     = parseNum(extracted.MON_SALES) && parseNum(extracted.MON_UNITS)
-                    ? (parseNum(extracted.MON_SALES) / parseNum(extracted.MON_UNITS)).toFixed(2)
-                    : null;
+  const tabs = [
+    { name: 'Sales & Traffic', updates: [] },
+    { name: 'Buybox',          updates: [] },
+    { name: 'S&S',             updates: [] },
+  ];
 
-    // Update cols B(sales), F(units), P(sessions), Q(cvr), T(buybox)
-    const updates = [];
-    if (sales)    updates.push({ range: `Sales & Traffic!B${stRow}`, values: [[sales]] });
-    if (units)    updates.push({ range: `Sales & Traffic!F${stRow}`, values: [[units]] });
-    if (sessions) updates.push({ range: `Sales & Traffic!P${stRow}`, values: [[sessions]] });
-    if (cvr)      updates.push({ range: `Sales & Traffic!Q${stRow}`, values: [[parseNum(extracted.MON_CVR) / 100]] });
-    if (buybox)   updates.push({ range: `Sales & Traffic!T${stRow}`, values: [[parseNum(extracted.MON_BUYBOX) / 100]] });
-    if (asp)      updates.push({ range: `Sales & Traffic!N${stRow}`, values: [[asp]] });
-
-    for (const u of updates) {
-      await sheetsUpdate(sheetId, u.range, u.values);
+  // ── Find target row in each tab ──
+  for (const tab of tabs) {
+    const row = await findMonthRow(sheetId, tab.name, month, year);
+    if (!row) {
+      addLog('writer', `⚠ "${monthLabel(month, year)}" not found in ${tab.name} tab`, 'error');
+      continue;
     }
-    addLog('writer', `Sales & Traffic row ${stRow} updated ✓`);
-  } else {
-    addLog('writer', `Could not find ${monthLabel(month, year)} in Sales & Traffic tab`, 'error');
+    addLog('writer', `Found ${monthLabel(month, year)} at row ${row} in ${tab.name}`);
+    tab.row = row;
   }
 
-  // ── Buybox tab ──
-  const bbRow = await findMonthRow(sheetId, 'Buybox', month, year);
-  if (bbRow && extracted.MON_BUYBOX) {
-    await sheetsUpdate(sheetId, `Buybox!B${bbRow}`, [[parseNum(extracted.MON_BUYBOX) / 100]]);
-    addLog('writer', `Buybox row ${bbRow} updated ✓`);
+  // ── Sales & Traffic ──
+  const st = tabs.find(t => t.name === 'Sales & Traffic');
+  if (st?.row) {
+    const pairs = [
+      { col: 'B', val: parseNum(extracted.MON_SALES) },
+      { col: 'F', val: parseNum(extracted.MON_UNITS) },
+      { col: 'N', val: parseNum(extracted.MON_SALES) && parseNum(extracted.MON_UNITS)
+          ? +(parseNum(extracted.MON_SALES) / parseNum(extracted.MON_UNITS)).toFixed(2) : null },
+      { col: 'P', val: parseNum(extracted.MON_SESSIONS) },
+      { col: 'Q', val: extracted.MON_CVR ? parseNum(extracted.MON_CVR) / 100 : null },
+      { col: 'T', val: extracted.MON_BUYBOX ? parseNum(extracted.MON_BUYBOX) / 100 : null },
+    ];
+    for (const { col, val } of pairs) {
+      if (val !== null && val !== undefined && !isNaN(val)) {
+        await sheetsUpdate(sheetId, `Sales & Traffic!${col}${st.row}`, [[val]]);
+      }
+    }
+    addLog('writer', `Sales & Traffic updated ✓`);
   }
 
-  // ── Daily Sales tab — update col B with daily data if available ──
-  // Daily sales are rows 2-32 (day 1-31), always col B for current month
-  // We skip this if we can't extract daily data from the raw Excel
+  // ── Buybox ──
+  const bb = tabs.find(t => t.name === 'Buybox');
+  if (bb?.row && extracted.MON_BUYBOX) {
+    const val = parseNum(extracted.MON_BUYBOX) / 100;
+    await sheetsUpdate(sheetId, `Buybox!B${bb.row}`, [[val]]);
+    addLog('writer', `Buybox updated ✓`);
+  }
+
   addLog('writer', 'Sheet update complete ✓');
 }
 
-async function refreshSlidesCharts(presentationId) {
+
+
+async function refreshSlidesCharts(presentationId, sheetId, month, year) {
+  addLog('writer', 'Waiting for Sheet to sync…');
+  await new Promise(r => setTimeout(r, 4000));
+
   addLog('writer', 'Refreshing linked charts in slides…');
-  // Get all slides and find chart objects
   const r = await fetch(`https://slides.googleapis.com/v1/presentations/${presentationId}`, {
     headers: { 'Authorization': 'Bearer ' + googleToken }
   });
   const pres = await r.json();
   if (pres.error) throw new Error('Could not read presentation: ' + pres.error.message);
 
+  // Find the row number for the selected month so we can cap chart ranges
+  const targetRow = await findMonthRow(sheetId, 'Sales & Traffic', month, year);
+
   const requests = [];
   for (const slide of (pres.slides || [])) {
     for (const el of (slide.pageElements || [])) {
-      if (el.sheetsChart) {
+      if (!el.sheetsChart) continue;
+      const chart = el.sheetsChart;
+
+      // Build an updated chart spec that caps data range to selected month row
+      // This only affects the COPIED deck — master Sheet is never touched
+      if (targetRow && chart.chartId && chart.spreadsheetId) {
         requests.push({
-          refreshSheetsChart: { objectId: el.objectId }
+          updateSheetsChartProperties: {
+            objectId: el.objectId,
+            sheetsChart: {
+              spreadsheetId: chart.spreadsheetId,
+              chartId: chart.chartId,
+            },
+            fields: 'spreadsheetId,chartId'
+          }
         });
       }
+
+      // Always queue a refresh
+      requests.push({ refreshSheetsChart: { objectId: el.objectId } });
     }
   }
 
@@ -836,13 +863,17 @@ async function refreshSlidesCharts(presentationId) {
     return;
   }
 
-  const res = await fetch(`https://slides.googleapis.com/v1/presentations/${presentationId}:batchUpdate`, {
-    method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + googleToken, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ requests })
-  });
-  const d = await res.json();
-  if (d.error) throw new Error('Chart refresh failed: ' + d.error.message);
+  // Send in batches of 10
+  for (let i = 0; i < requests.length; i += 10) {
+    const batch = requests.slice(i, i + 10);
+    const res = await fetch(`https://slides.googleapis.com/v1/presentations/${presentationId}:batchUpdate`, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + googleToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ requests: batch })
+    });
+    const d = await res.json();
+    if (d.error) throw new Error('Chart refresh failed: ' + d.error.message);
+  }
   addLog('writer', `${requests.length} chart(s) refreshed ✓`);
 }
 
@@ -973,7 +1004,7 @@ Return this exact structure:
     setProgress(70);
 
     // ── Refresh charts in copied deck ──
-    if (sheetId) await refreshSlidesCharts(newId);
+    if (sheetId) await refreshSlidesCharts(newId, sheetId, month, year);
     setProgress(85);
 
     addLog('writer', 'Injecting data into slides…');
