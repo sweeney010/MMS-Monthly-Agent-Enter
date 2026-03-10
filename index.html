@@ -818,7 +818,7 @@ async function updateSheetData(sheetId, extracted, month, year) {
 
 
 
-async function refreshSlidesCharts(presentationId, sheetId, month, year) {
+async function refreshSlidesCharts(presentationId) {
   addLog('writer', 'Waiting for Sheet to sync…');
   await new Promise(r => setTimeout(r, 4000));
 
@@ -829,31 +829,10 @@ async function refreshSlidesCharts(presentationId, sheetId, month, year) {
   const pres = await r.json();
   if (pres.error) throw new Error('Could not read presentation: ' + pres.error.message);
 
-  // Find the row number for the selected month so we can cap chart ranges
-  const targetRow = await findMonthRow(sheetId, 'Sales & Traffic', month, year);
-
   const requests = [];
   for (const slide of (pres.slides || [])) {
     for (const el of (slide.pageElements || [])) {
       if (!el.sheetsChart) continue;
-      const chart = el.sheetsChart;
-
-      // Build an updated chart spec that caps data range to selected month row
-      // This only affects the COPIED deck — master Sheet is never touched
-      if (targetRow && chart.chartId && chart.spreadsheetId) {
-        requests.push({
-          updateSheetsChartProperties: {
-            objectId: el.objectId,
-            sheetsChart: {
-              spreadsheetId: chart.spreadsheetId,
-              chartId: chart.chartId,
-            },
-            fields: 'spreadsheetId,chartId'
-          }
-        });
-      }
-
-      // Always queue a refresh
       requests.push({ refreshSheetsChart: { objectId: el.objectId } });
     }
   }
@@ -1004,7 +983,7 @@ Return this exact structure:
     setProgress(70);
 
     // ── Refresh charts in copied deck ──
-    if (sheetId) await refreshSlidesCharts(newId, sheetId, month, year);
+    if (sheetId) await refreshSlidesCharts(newId);
     setProgress(85);
 
     addLog('writer', 'Injecting data into slides…');
