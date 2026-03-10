@@ -1,7 +1,4 @@
 {
-  "functions": {
-    "api/brain.js": { "runtime": "nodejs20.x" }
-  },
   "rewrites": [
     { "source": "/api/brain", "destination": "/api/brain" },
     { "source": "/(.*)", "destination": "/index.html" }
