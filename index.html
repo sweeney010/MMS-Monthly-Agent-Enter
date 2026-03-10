@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>QBR Agent — Google Slides</title>
+<title>Monthly Report Agent — Google Slides</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
     --bg:#09090f; --surface:#111118; --surface2:#16161f;
@@ -193,8 +192,8 @@
   <div class="header">
     <div>
       <div class="eyebrow">Marketplace Intelligence</div>
-      <h1>QBR <span>Agent</span></h1>
-      <p class="tagline">Excel data → AI → Google Slides deck<br/>in under two minutes.</p>
+      <h1>Monthly <span>Agent</span></h1>
+      <p class="tagline">Excel data → AI → Google Slides report<br/>in under two minutes.</p>
     </div>
     <div class="auth-badge" id="authBadge" onclick="handleAuthClick()">
       <span class="dot"></span>
@@ -339,24 +338,22 @@
       </div>
     </div>
 
-    <!-- ── Step 2: Upload ── -->
+    <!-- ── Step 2: Fetch Sheet Data ── -->
     <div class="step" id="step2">
       <div class="step-header" onclick="openStep('step2')">
         <div class="step-num">2</div>
         <div class="step-info">
-          <div class="step-title">Upload Data</div>
-          <div class="step-desc">Monthly Excel or CSV report</div>
+          <div class="step-title">Load Sheet Data</div>
+          <div class="step-desc">Read data directly from Google Sheets</div>
         </div>
         <span class="step-status pending" id="step2Status">Waiting</span>
       </div>
       <div class="step-body">
-        <div class="upload-zone" id="uploadZone">
-          <input type="file" accept=".xlsx,.xls,.csv" onchange="handleFile(event)"/>
-          <div class="upload-icon">📊</div>
-          <div class="upload-text">
-            <div class="upload-name" id="uploadName">Drop your Excel or CSV file here</div>
-            <div class="upload-hint" id="uploadHint">.xlsx · .xls · .csv accepted</div>
-          </div>
+        <button class="btn-run" id="fetchBtn" onclick="fetchSheetData()" style="margin-top:0" disabled>
+          Connect Google to load data
+        </button>
+        <div style="margin-top:10px;font-family:var(--font-m);font-size:11px;color:var(--text3)" id="fetchHint">
+          Reads all tabs from your linked Google Sheet
         </div>
       </div>
     </div>
@@ -366,7 +363,7 @@
       <div class="step-header" onclick="openStep('step3')">
         <div class="step-num">3</div>
         <div class="step-info">
-          <div class="step-title">Generate Deck</div>
+          <div class="step-title">Generate Report</div>
           <div class="step-desc">AI agents → Google Slides</div>
         </div>
         <span class="step-status pending" id="step3Status">Waiting</span>
@@ -531,44 +528,63 @@ async function handleAuthClick() {
 function updateAuthBadge(ok) {
   document.getElementById('authBadge').className = ok ? 'auth-badge connected' : 'auth-badge';
   document.getElementById('authLabel').textContent = ok ? 'Google Connected' : 'Connect Google';
+  // Enable fetch button once Google is connected
+  const fetchBtn = document.getElementById('fetchBtn');
+  if (fetchBtn) {
+    fetchBtn.disabled = !ok;
+    fetchBtn.textContent = ok ? '▶ Load data from Google Sheets' : 'Connect Google to load data';
+  }
 }
 
 // ─────────────────────────────────────────────
-// File upload
+// Fetch Sheet data for AI
 // ─────────────────────────────────────────────
-function handleFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  document.getElementById('uploadZone').classList.add('has-file');
-  document.getElementById('uploadName').textContent = file.name;
-  document.getElementById('uploadHint').textContent = 'Parsing…';
-  document.getElementById('step2Status').textContent = 'Parsing';
-  document.getElementById('step2Status').className = 'step-status ready';
+async function fetchSheetData() {
+  const sheetId = document.getElementById('sheetId').value.trim();
+  if (!sheetId) { alert('Enter your Google Sheet ID in Step 1 first.'); return; }
+  if (!googleToken) { alert('Connect Google first.'); return; }
 
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try {
-      const wb = XLSX.read(ev.target.result, { type: 'array' });
-      let text = '';
-      wb.SheetNames.forEach(n => {
-        const csv = XLSX.utils.sheet_to_csv(wb.Sheets[n], { skipHidden: true });
-        if (csv.trim()) text += `\n--- Sheet: ${n} ---\n${csv}`;
-      });
-      parsedData = text.trim();
-      const rows = parsedData.split('\n').length;
-      document.getElementById('uploadHint').textContent = `✓ ${rows} rows parsed`;
-      document.getElementById('step2Status').textContent = 'Ready';
-      document.getElementById('step2Status').className = 'step-status done';
-      document.getElementById('step2').className = 'step done';
-      openStep('step3');
-      updateRunButton();
-    } catch(err) {
-      document.getElementById('uploadHint').textContent = 'Error: ' + err.message;
-      document.getElementById('step2Status').textContent = 'Error';
-      document.getElementById('step2Status').className = 'step-status error';
+  const btn = document.getElementById('fetchBtn');
+  const hint = document.getElementById('fetchHint');
+  btn.disabled = true;
+  btn.textContent = '⟳ Loading sheet data…';
+  hint.style.color = 'var(--accent2)';
+  hint.textContent = 'Reading all tabs…';
+
+  try {
+    const tabs = ['Sales & Traffic', 'Ads', 'S&S', 'Buybox', 'Daily Sales', 'ASIN Share'];
+    let combined = '';
+    for (const tab of tabs) {
+      try {
+        const rows = await sheetsGet(sheetId, `${tab}!A1:Z50`);
+        if (rows.length) {
+          combined += `\n--- Sheet: ${tab} ---\n`;
+          combined += rows.map(r => r.join(',')).join('\n');
+        }
+      } catch(e) {
+        // tab may not exist, skip
+      }
     }
-  };
-  reader.readAsArrayBuffer(file);
+    if (!combined.trim()) throw new Error('No data found in sheet');
+    parsedData = combined.trim();
+    const rowCount = parsedData.split('\n').length;
+    hint.textContent = `✓ ${rowCount} rows loaded from Google Sheets`;
+    hint.style.color = 'var(--green)';
+    btn.textContent = '✓ Sheet data loaded — click to refresh';
+    btn.disabled = false;
+    document.getElementById('step2Status').textContent = 'Ready';
+    document.getElementById('step2Status').className = 'step-status done';
+    document.getElementById('step2').className = 'step done';
+    openStep('step3');
+    updateRunButton();
+  } catch(err) {
+    hint.textContent = 'Error: ' + err.message;
+    hint.style.color = 'var(--red)';
+    btn.textContent = 'Retry';
+    btn.disabled = false;
+    document.getElementById('step2Status').textContent = 'Error';
+    document.getElementById('step2Status').className = 'step-status error';
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -883,7 +899,7 @@ async function runAgents() {
 
   try {
     // ── Orchestrator ──
-    addLog('orchestrator', `Planning ${brand} ${month} ${year} QBR… [${currentMode} / ${getSelectedModel()}]`);
+    addLog('orchestrator', `Planning ${brand} ${month} ${year} Monthly Report… [${currentMode} / ${getSelectedModel()}]`);
     setProgress(10);
     const orchRaw = await callBrain(
       `You are a QBR Orchestrator. Analyse the Excel data and identify the quarter. Return ONLY raw JSON: {"summary":string,"quarter":string}`,
@@ -951,7 +967,7 @@ Return this exact structure:
     setProgress(65);
 
     addLog('writer', 'Copying template in Google Drive…');
-    const deckTitle = `${brand} QBR — ${month} ${year}`;
+    const deckTitle = `${brand} Monthly Report — ${month} ${year}`;
     const newId     = await copyTemplate(templateId, deckTitle);
     addLog('writer', `Deck created: "${deckTitle}"`);
     setProgress(70);
