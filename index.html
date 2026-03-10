@@ -976,7 +976,13 @@ Return this exact structure:
       if (bbRow) await clearFutureRows(workingSheetId, 'Buybox, CR, Sessions', bbRow, ['B'], 20);
       const mIdx = MONTH_NAMES.findIndex(m => month.toLowerCase().startsWith(m.toLowerCase()));
       const daysInMonth = new Date(parseInt(year), mIdx + 1, 0).getDate();
-      await clearFutureRows(workingSheetId, 'Daily Sales', daysInMonth + 1, ['B'], 10);
+
+      // Row offset: row 1 = headers, row 2 = day 1, so day N = row N+1
+      // Clear from row (daysInMonth + 2) onwards to preserve all valid days
+      const trimFromRow = daysInMonth + 2;
+      await clearFutureRows(workingSheetId, 'Daily Sales', trimFromRow - 1, ['B'], 10);
+      await clearFutureRows(workingSheetId, 'Buybox, CR, Sessions', trimFromRow - 1, ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U'], 10);
+
       addLog('writer', `Charts trimmed to ${daysInMonth} days ✓`);
     }
     setProgress(65);
