@@ -17,10 +17,11 @@
     --font-d:'Syne',sans-serif; --font-m:'DM Mono',monospace;
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--text);font-family:var(--font-d);min-height:100vh;overflow-x:hidden}
+  html,body{margin:0;padding:0;overflow-x:hidden}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-d);min-height:100vh}
   body::before{content:'';position:fixed;top:-40vh;left:-20vw;width:80vw;height:80vh;background:radial-gradient(ellipse,rgba(124,106,247,.07) 0%,transparent 70%);pointer-events:none;z-index:-1}
   body::after{content:'';position:fixed;bottom:-30vh;right:-10vw;width:60vw;height:60vh;background:radial-gradient(ellipse,rgba(52,211,153,.05) 0%,transparent 70%);pointer-events:none;z-index:-1}
-  .app{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:48px 24px 80px}
+  .app{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:48px 24px 80px;overflow:hidden}
 
   /* Header */
   .header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:48px;gap:24px}
@@ -182,7 +183,7 @@
         <div class="auth-banner-sub" id="authSub">Required to read your Sheet, copy the template and create the report in Google Slides</div>
       </div>
     </div>
-    <button class="auth-banner-btn" id="authBtn">Connect Google</button>
+    <button class="auth-banner-btn" id="authBtn" onclick="handleAuthClick()">Connect Google</button>
   </div>
 
   <div class="steps">
@@ -503,12 +504,14 @@ function updateAuthBadge(ok) {
     title.textContent = 'Google account connected';
     sub.textContent   = 'Your account is authenticated — you can now load data and generate reports. Click to disconnect.';
     btn.textContent   = 'Disconnect';
+    btn.onclick       = handleAuthClick;
   } else {
     banner.className  = 'auth-banner';
     icon.textContent  = '🔗';
     title.textContent = 'Connect your Google account to get started';
     sub.textContent   = 'Required to read your Sheet, copy the template and create the report in Google Slides';
     btn.textContent   = 'Connect Google';
+    btn.onclick       = handleAuthClick;
   }
 
   const fetchBtn = document.getElementById('fetchBtn');
