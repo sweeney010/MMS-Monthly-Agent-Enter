@@ -17,47 +17,30 @@
     --font-d:'Syne',sans-serif; --font-m:'DM Mono',monospace;
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{margin:0;padding:0;overflow-x:hidden}
   body{background:var(--bg);color:var(--text);font-family:var(--font-d);min-height:100vh}
-  body::before{content:'';position:fixed;top:-40vh;left:-20vw;width:80vw;height:80vh;background:radial-gradient(ellipse,rgba(124,106,247,.07) 0%,transparent 70%);pointer-events:none;z-index:-1}
-  body::after{content:'';position:fixed;bottom:-30vh;right:-10vw;width:60vw;height:60vh;background:radial-gradient(ellipse,rgba(52,211,153,.05) 0%,transparent 70%);pointer-events:none;z-index:-1}
-  .app{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:48px 24px 80px;overflow:hidden}
+
+  .app{max-width:860px;margin:0 auto;padding:48px 24px 80px;position:relative}
 
   /* Header */
-  .header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:48px;gap:24px}
+  .header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;gap:24px}
   .eyebrow{font-family:var(--font-m);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent2);margin-bottom:10px;display:flex;align-items:center;gap:8px}
   .eyebrow::before{content:'';width:20px;height:1px;background:var(--accent2);opacity:.6}
   h1{font-size:clamp(28px,5vw,42px);font-weight:800;line-height:1.05;letter-spacing:-.02em}
   h1 span{color:var(--accent2)}
   .tagline{font-family:var(--font-m);font-size:12px;color:var(--text2);margin-top:10px;line-height:1.6}
 
-  /* Auth banner */
-  .auth-banner {
-    display:flex;align-items:center;justify-content:space-between;gap:16px;
-    background:linear-gradient(135deg,rgba(124,106,247,.12),rgba(124,106,247,.05));
-    border:1px solid var(--accent);border-radius:14px;padding:18px 22px;
-    margin-bottom:32px;cursor:pointer;transition:all .2s;
-  }
-  .auth-banner:hover{background:linear-gradient(135deg,rgba(124,106,247,.2),rgba(124,106,247,.08));border-color:var(--accent2)}
-  .auth-banner.connected{background:linear-gradient(135deg,rgba(52,211,153,.1),rgba(52,211,153,.03));border-color:var(--green);cursor:default}
-  .auth-banner.connected:hover{background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(52,211,153,.05))}
-  .auth-banner-left{display:flex;align-items:center;gap:14px;flex:1;min-width:0}
-  .auth-banner-icon{font-size:22px;flex-shrink:0;animation:pulse-icon 2s ease-in-out infinite}
-  .auth-banner.connected .auth-banner-icon{animation:none}
-  @keyframes pulse-icon{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
-  .auth-banner-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px}
-  .auth-banner-sub{font-family:var(--font-m);font-size:11px;color:var(--text2);line-height:1.5}
-  .auth-banner-btn{
-    flex-shrink:0;padding:10px 20px;border-radius:8px;
-    background:var(--accent);color:#fff;font-family:var(--font-d);
-    font-size:13px;font-weight:700;letter-spacing:.02em;
-    transition:all .2s;white-space:nowrap;
-  }
-  .auth-banner:hover .auth-banner-btn{background:var(--accent2)}
-  .auth-banner.connected .auth-banner-btn{background:rgba(52,211,153,.15);color:var(--green);border:1px solid rgba(52,211,153,.3)}
+  /* Auth badge */
+  .auth-badge{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:100px;border:1px solid var(--border2);background:var(--surface);font-family:var(--font-m);font-size:11px;color:var(--text2);white-space:nowrap;cursor:pointer;transition:all .2s;flex-shrink:0;margin-top:6px;text-decoration:none}
+  .auth-badge:hover{border-color:var(--accent);color:var(--text)}
+  .auth-badge.connected{border-color:var(--green);color:var(--green)}
+  .auth-badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+  .auth-badge.connected .dot{animation:pulse-dot 2s ease-in-out infinite}
+  @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
 
-  /* Auth badge (hidden — replaced by banner) */
-  .auth-badge{display:none}
+  /* Auth notice */
+  .auth-notice{background:rgba(124,106,247,.08);border:1px solid rgba(124,106,247,.3);border-radius:10px;padding:14px 16px;margin-bottom:24px;display:flex;align-items:center;gap:12px;font-family:var(--font-m);font-size:11px;color:var(--accent2);line-height:1.5}
+  .auth-notice.hidden{display:none}
+  .auth-notice-icon{font-size:18px;flex-shrink:0}
 
   /* Steps */
   .steps{display:grid;gap:12px;margin-bottom:28px}
@@ -65,12 +48,12 @@
   .step.active{border-color:var(--border2)}
   .step.done{border-color:rgba(52,211,153,.25)}
   .step.has-error{border-color:rgba(248,113,113,.3)}
-  .step-header{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer}
+  .step-header{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer;user-select:none}
   .step-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-m);font-size:12px;font-weight:500;flex-shrink:0;background:var(--surface2);border:1px solid var(--border2);color:var(--text3);transition:all .3s}
   .step.active .step-num{background:var(--accent-glow);border-color:var(--accent);color:var(--accent2)}
   .step.done .step-num{background:var(--green-glow);border-color:var(--green);color:var(--green)}
   .step-info{flex:1;min-width:0}
-  .step-title{font-size:13px;font-weight:700;letter-spacing:.01em;color:var(--text2);transition:color .2s}
+  .step-title{font-size:13px;font-weight:700;color:var(--text2);transition:color .2s}
   .step.active .step-title,.step.done .step-title{color:var(--text)}
   .step-desc{font-family:var(--font-m);font-size:11px;color:var(--text3);margin-top:2px}
   .step.active .step-desc,.step.done .step-desc{color:var(--text2)}
@@ -86,7 +69,7 @@
   .field-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px}
   .field{display:flex;flex-direction:column;gap:5px}
   label{font-family:var(--font-m);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)}
-  input,select{background:var(--bg);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--font-d);font-size:13px;padding:9px 12px;outline:none;transition:border-color .2s;width:100%;max-width:100%;box-sizing:border-box;display:block}
+  input,select{background:var(--bg);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--font-d);font-size:13px;padding:9px 12px;outline:none;transition:border-color .2s;width:100%}
   input:focus,select:focus{border-color:var(--accent)}
   select option{background:var(--surface)}
   .config-box{background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:12px}
@@ -109,11 +92,9 @@
   .btn-sm:hover{border-color:var(--accent);color:var(--accent2)}
 
   /* Buttons */
-  .btn-run{width:100%;padding:16px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--accent) 0%,#5b4fdd 100%);color:#fff;font-family:var(--font-d);font-size:14px;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;margin-top:4px}
-  .btn-run::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);opacity:0;transition:opacity .2s}
-  .btn-run:hover::after{opacity:1}
-  .btn-run:disabled{background:var(--surface2);color:var(--text3);cursor:not-allowed}
-  .btn-run:disabled::after{display:none}
+  .btn-run{width:100%;padding:16px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--accent) 0%,#5b4fdd 100%);color:#fff;font-family:var(--font-d);font-size:14px;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:all .25s;margin-top:4px}
+  .btn-run:hover{opacity:.9}
+  .btn-run:disabled{background:var(--surface2);color:var(--text3);cursor:not-allowed;opacity:1}
 
   /* Log */
   .log-container{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-family:var(--font-m);font-size:11px;line-height:1.8;min-height:100px;max-height:260px;overflow-y:auto;color:var(--text2)}
@@ -131,14 +112,13 @@
   /* Progress */
   .progress-bar{height:2px;background:var(--border);border-radius:1px;margin:12px 0;overflow:hidden;display:none}
   .progress-bar.visible{display:block}
-  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:1px;transition:width .4s ease;box-shadow:0 0 8px var(--accent)}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:1px;transition:width .4s ease}
 
   /* Result */
-  .result-card{background:linear-gradient(135deg,rgba(52,211,153,.08),rgba(52,211,153,.03));border:1px solid rgba(52,211,153,.3);border-radius:14px;padding:20px;display:none;animation:slide-in .4s ease}
+  .result-card{background:linear-gradient(135deg,rgba(52,211,153,.08),rgba(52,211,153,.03));border:1px solid rgba(52,211,153,.3);border-radius:14px;padding:20px;display:none}
   .result-card.visible{display:block}
-  @keyframes slide-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
   .result-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--green);margin-bottom:12px}
-  .result-link{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:8px;text-decoration:none;color:var(--text);font-size:13px;font-weight:600;transition:all .2s}
+  .result-link{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:8px;text-decoration:none;color:var(--text);font-size:13px;font-weight:600;transition:all .2s;margin-bottom:8px}
   .result-link:hover{background:rgba(52,211,153,.15);border-color:var(--green)}
   .result-link-icon{font-size:18px}
   .result-link-sub{font-family:var(--font-m);font-size:10px;color:var(--text2);margin-top:1px}
@@ -172,23 +152,20 @@
       <h1>Monthly <span>Agent</span></h1>
       <p class="tagline">Google Sheets → AI → Google Slides report<br/>in under two minutes.</p>
     </div>
+    <button class="auth-badge" id="authBadge" onclick="handleAuthClick()">
+      <span class="dot"></span>
+      <span id="authLabel">Connect Google</span>
+    </button>
   </div>
 
-  <!-- Google Auth Banner -->
-  <div class="auth-banner" id="authBanner">
-    <div class="auth-banner-left">
-      <div class="auth-banner-icon" id="authIcon">🔗</div>
-      <div>
-        <div class="auth-banner-title" id="authTitle">Connect your Google account to get started</div>
-        <div class="auth-banner-sub" id="authSub">Required to read your Sheet, copy the template and create the report in Google Slides</div>
-      </div>
-    </div>
-    <button class="auth-banner-btn" id="authBtn" onclick="handleAuthClick()">Connect Google</button>
+  <div class="auth-notice" id="authNotice">
+    <span class="auth-notice-icon">🔗</span>
+    <span>Click <strong>Connect Google</strong> in the top right to get started — required to read your Sheet and create the report.</span>
   </div>
 
   <div class="steps">
 
-    <!-- Step 1: Configuration -->
+    <!-- Step 1 -->
     <div class="step active" id="step1">
       <div class="step-header" onclick="openStep('step1')">
         <div class="step-num">1</div>
@@ -256,10 +233,7 @@
           <div class="field">
             <input type="text" id="googleClientId" placeholder="xxxxxx.apps.googleusercontent.com"/>
           </div>
-          <div class="hint">
-            <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a>
-            → Enable Slides, Drive &amp; Sheets APIs → Create OAuth 2.0 Web Client ID
-          </div>
+          <div class="hint"><a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → Enable Slides, Drive &amp; Sheets APIs → Create OAuth 2.0 Web Client ID</div>
         </div>
 
         <div class="field-row">
@@ -295,7 +269,7 @@
         <div class="config-box" style="margin-top:12px">
           <div class="config-box-title">Linked Google Sheet ID</div>
           <div class="field">
-            <input type="text" id="sheetId" placeholder="Sheet ID from URL" value="1x2PjcBsOPIb_2HOzYuzEBU9JURdpiGdzL9DO4k1CHY0"/>
+            <input type="text" id="sheetId" value="1x2PjcBsOPIb_2HOzYuzEBU9JURdpiGdzL9DO4k1CHY0"/>
           </div>
           <div class="hint">From URL: docs.google.com/spreadsheets/d/<strong style="color:var(--accent2)">THIS_IS_THE_ID</strong>/edit</div>
         </div>
@@ -303,7 +277,7 @@
       </div>
     </div>
 
-    <!-- Step 2: Load Sheet Data -->
+    <!-- Step 2 -->
     <div class="step" id="step2">
       <div class="step-header" onclick="openStep('step2')">
         <div class="step-num">2</div>
@@ -323,7 +297,7 @@
       </div>
     </div>
 
-    <!-- Step 3: Generate -->
+    <!-- Step 3 -->
     <div class="step" id="step3">
       <div class="step-header" onclick="openStep('step3')">
         <div class="step-num">3</div>
@@ -347,11 +321,11 @@
             <span class="result-link-icon">📑</span>
             <div>
               <div id="resultLinkTitle">Open in Google Slides</div>
-              <div class="result-link-sub" id="resultLinkSub">Click to view and share</div>
+              <div class="result-link-sub">Click to view and share</div>
             </div>
             <span style="margin-left:auto;color:var(--green)">→</span>
           </a>
-          <a id="folderLink" href="#" target="_blank" class="result-link" style="margin-top:8px">
+          <a id="folderLink" href="#" target="_blank" class="result-link">
             <span class="result-link-icon">📁</span>
             <div>
               <div id="folderLinkTitle">Open Report Folder</div>
@@ -373,10 +347,11 @@
     <div class="setup-title">📋 Template placeholder reference</div>
     <div style="font-family:var(--font-m);font-size:11px;color:var(--text2);line-height:2.2;columns:2;gap:32px;">
       <div>Cover &amp; headers</div>
-      <div style="color:var(--text3);font-size:10px">{{BRAND}} · {{MONTH}} · {{YEAR}} · {{QUARTER}}</div>
+      <div style="color:var(--text3);font-size:10px">{{BRAND}} · {{MONTH}} · {{YEAR}} · {{NEXT_PERIOD}}</div>
       <div style="margin-top:8px">Executive Summary</div>
       <div style="color:var(--text3);font-size:10px">{{EXEC_HEADLINE}} · {{WIN_1}} {{WIN_2}} {{WIN_3}}</div>
-      <div style="color:var(--text3);font-size:10px">{{CHALLENGE_1}} {{CHALLENGE_2}} · {{OPP_1}} {{OPP_2}} {{OPP_3}}</div>
+      <div style="color:var(--text3);font-size:10px">{{CHALLENGE_1}} {{CHALLENGE_2}} {{CHALLENGE_3}}</div>
+      <div style="color:var(--text3);font-size:10px">{{OPP_1}} {{OPP_2}} {{OPP_3}}</div>
       <div style="margin-top:8px">Annual Overview</div>
       <div style="color:var(--text3);font-size:10px">{{ANNUAL_SALES}} {{ANNUAL_SALES_YOY}} {{ANNUAL_UNITS}} {{ANNUAL_UNITS_YOY}}</div>
       <div style="color:var(--text3);font-size:10px">{{ANNUAL_SESSIONS}} {{ANNUAL_SESSIONS_YOY}} {{ANNUAL_CVR}} {{ANNUAL_CVR_YOY}}</div>
@@ -385,11 +360,11 @@
       <div style="color:var(--text3);font-size:10px">{{MON_SALES}} {{MON_SALES_MOM}} {{MON_UNITS}} {{MON_UNITS_MOM}}</div>
       <div style="color:var(--text3);font-size:10px">{{MON_SESSIONS}} {{MON_SESSIONS_MOM}} {{MON_CVR}} {{MON_CVR_MOM}}</div>
       <div style="color:var(--text3);font-size:10px">{{MON_BUYBOX}} {{MON_BUYBOX_MOM}} {{MON_COMMENTARY}}</div>
-      <div style="color:var(--text3);font-size:10px">{{MON_ADS_HEADLINE}} {{MON_ADS_BULLET_1}} {{MON_ADS_BULLET_2}}</div>
       <div style="margin-top:8px">Other slides</div>
-      <div style="color:var(--text3);font-size:10px">{{S_AND_S_COMMENTARY}} · {{BUYBOX_COMMENTARY}} · {{TOP_PRODUCTS_COMMENTARY}}</div>
-      <div style="color:var(--text3);font-size:10px">{{ADS_HEADLINE}} {{ADS_COMMENTARY}} {{ADS_QTR_HEADLINE}}</div>
-      <div style="color:var(--text3);font-size:10px">{{ADS_QTR_BULLET_1}} {{ADS_QTR_BULLET_2}} {{ADS_QTR_BULLET_3}}</div>
+      <div style="color:var(--text3);font-size:10px">{{ADS_HEADLINE}} {{ADS_MON_BULLET_1}} {{ADS_MON_BULLET_2}}</div>
+      <div style="color:var(--text3);font-size:10px">{{TRAFFIC_COMMENTARY}} · {{ASIN_HEADLINE}} · {{ASIN_COMMENTARY}}</div>
+      <div style="color:var(--text3);font-size:10px">{{S_AND_S_HEADLINE}} · {{S_AND_S_COMMENTARY}}</div>
+      <div style="color:var(--text3);font-size:10px">{{BUYBOX_COMMENTARY}} · {{TOP_PRODUCTS_COMMENTARY}}</div>
     </div>
   </div>
 
@@ -492,50 +467,31 @@ async function handleAuthClick() {
 }
 
 function updateAuthBadge(ok) {
-  const banner = document.getElementById('authBanner');
-  const icon   = document.getElementById('authIcon');
-  const title  = document.getElementById('authTitle');
-  const sub    = document.getElementById('authSub');
-  const btn    = document.getElementById('authBtn');
-
-  if (ok) {
-    banner.className  = 'auth-banner connected';
-    icon.textContent  = '✅';
-    title.textContent = 'Google account connected';
-    sub.textContent   = 'Your account is authenticated — you can now load data and generate reports. Click to disconnect.';
-    btn.textContent   = 'Disconnect';
-    btn.onclick       = handleAuthClick;
-  } else {
-    banner.className  = 'auth-banner';
-    icon.textContent  = '🔗';
-    title.textContent = 'Connect your Google account to get started';
-    sub.textContent   = 'Required to read your Sheet, copy the template and create the report in Google Slides';
-    btn.textContent   = 'Connect Google';
-    btn.onclick       = handleAuthClick;
-  }
-
+  const badge = document.getElementById('authBadge');
+  const label = document.getElementById('authLabel');
+  const notice = document.getElementById('authNotice');
+  badge.className = ok ? 'auth-badge connected' : 'auth-badge';
+  label.textContent = ok ? 'Google Connected' : 'Connect Google';
+  notice.className = ok ? 'auth-notice hidden' : 'auth-notice';
   const fetchBtn = document.getElementById('fetchBtn');
   if (fetchBtn) {
-    fetchBtn.disabled    = !ok;
+    fetchBtn.disabled = !ok;
     fetchBtn.textContent = ok ? '▶ Load data from Google Sheets' : 'Connect Google to load data';
   }
 }
 
 // ─────────────────────────────────────────────
-// Fetch Sheet data for AI
+// Build focused AI context from Sheet
 // ─────────────────────────────────────────────
 async function buildAIContext(sheetId, month, year) {
-  // Build a focused, clearly labelled data context for the AI
-  // instead of dumping all sheet data which causes confusion
-  const label     = monthLabel(month, year);
-  const mIdx      = MONTH_NAMES.findIndex(m => month.toLowerCase().startsWith(m.toLowerCase()));
-  const prevMIdx  = mIdx === 0 ? 11 : mIdx - 1;
-  const prevYear  = mIdx === 0 ? parseInt(year) - 1 : parseInt(year);
-  const prevLabel = `${MONTH_NAMES[prevMIdx]} ${String(prevYear).slice(-2)}`;
+  const label    = monthLabel(month, year);
+  const mIdx     = MONTH_NAMES.findIndex(m => month.toLowerCase().startsWith(m.toLowerCase()));
+  const prevMIdx = mIdx === 0 ? 11 : mIdx - 1;
+  const prevYear = mIdx === 0 ? parseInt(year) - 1 : parseInt(year);
+  const prevLabel= `${MONTH_NAMES[prevMIdx]} ${String(prevYear).slice(-2)}`;
 
   let context = `SELECTED MONTH: ${month} ${year}\nPREVIOUS MONTH: ${MONTH_NAMES[prevMIdx]} ${prevYear}\n\n`;
 
-  // Pull Monthly Sales & Traffic — find selected and previous month rows
   try {
     const rows = await sheetsGet(sheetId, 'Monthly Sales & Traffic!A1:T25');
     if (rows.length) {
@@ -548,56 +504,26 @@ async function buildAIContext(sheetId, month, year) {
       }
       if (targetRow) {
         context += `=== ${label} Monthly Sales & Traffic ===\n`;
-        headers.forEach((h, i) => {
-          if (targetRow[i] !== undefined && targetRow[i] !== '')
-            context += `${h}: ${targetRow[i]}\n`;
-        });
+        headers.forEach((h, i) => { if (targetRow[i] !== undefined && targetRow[i] !== '') context += `${h}: ${targetRow[i]}\n`; });
       }
       if (prevRow) {
         context += `\n=== ${prevLabel} Monthly Sales & Traffic (previous month for MoM) ===\n`;
-        headers.forEach((h, i) => {
-          if (prevRow[i] !== undefined && prevRow[i] !== '')
-            context += `${h}: ${prevRow[i]}\n`;
-        });
+        headers.forEach((h, i) => { if (prevRow[i] !== undefined && prevRow[i] !== '') context += `${h}: ${prevRow[i]}\n`; });
       }
-      // Also send YTD/annual summary row if present (usually last non-empty row)
-      const annualRow = rows.find(r => r[0]?.toString().toLowerCase().includes('total') || r[0]?.toString().toLowerCase().includes('ytd'));
-      if (annualRow) {
-        context += `\n=== Annual/YTD Total ===\n`;
-        headers.forEach((h, i) => {
-          if (annualRow[i] !== undefined && annualRow[i] !== '')
-            context += `${h}: ${annualRow[i]}\n`;
+      const priorYearRows = rows.filter(r => r[0]?.toString().trim().endsWith(String(parseInt(year)-1).slice(-2)));
+      if (priorYearRows.length) {
+        let totalSales = 0, totalUnits = 0, totalSessions = 0;
+        priorYearRows.forEach(r => {
+          totalSales    += parseFloat(String(r[1]||'').replace(/[$,]/g,'')) || 0;
+          totalUnits    += parseFloat(String(r[5]||'').replace(/[,]/g,''))  || 0;
+          totalSessions += parseFloat(String(r[15]||'').replace(/[,]/g,'')) || 0;
         });
+        context += `\n=== Full Year ${parseInt(year)-1} Totals (for ANNUAL_ fields) ===\n`;
+        context += `Total Sales: $${totalSales.toLocaleString()}\nTotal Units: ${totalUnits.toLocaleString()}\nTotal Sessions: ${totalSessions.toLocaleString()}\n`;
       }
     }
   } catch(e) { context += `Monthly Sales & Traffic: unavailable\n`; }
 
-  // Pull prior full year totals from Monthly Sales & Traffic
-  try {
-    const rows = await sheetsGet(sheetId, 'Monthly Sales & Traffic!A1:T25');
-    const priorYearRows = rows.filter(r => r[0]?.toString().trim().endsWith(String(parseInt(year)-1).slice(-2)));
-    if (priorYearRows.length) {
-      const headers = rows[0];
-      let totalSales = 0, totalUnits = 0, totalSessions = 0;
-      priorYearRows.forEach(r => {
-        totalSales    += parseFloat(String(r[1]||'').replace(/[$,]/g,'')) || 0;
-        totalUnits    += parseFloat(String(r[5]||'').replace(/[,]/g,''))  || 0;
-        totalSessions += parseFloat(String(r[15]||'').replace(/[,]/g,'')) || 0;
-      });
-      context += `\n=== Full Year ${parseInt(year)-1} Totals (for ANNUAL_ fields) ===\n`;
-      context += `Total Sales: ${totalSales.toLocaleString()}\n`;
-      context += `Total Units: ${totalUnits.toLocaleString()}\n`;
-      context += `Total Sessions: ${totalSessions.toLocaleString()}\n`;
-      // Last month of prior year for CVR/Buybox averages
-      const lastPriorRow = priorYearRows[priorYearRows.length - 1];
-      if (lastPriorRow) {
-        context += `Avg CVR (last month prior year): ${lastPriorRow[16]||''}\n`;
-        context += `Avg Buybox (last month prior year): ${lastPriorRow[19]||''}\n`;
-      }
-    }
-  } catch(e) {}
-
-  // Pull other tabs briefly
   const otherTabs = ['Daily Sales','Buybox, CR, Sessions','S&S','ASIN Share'];
   for (const tab of otherTabs) {
     try {
@@ -608,9 +534,13 @@ async function buildAIContext(sheetId, month, year) {
       }
     } catch(e) {}
   }
-
   return context;
 }
+
+// ─────────────────────────────────────────────
+// Fetch Sheet data
+// ─────────────────────────────────────────────
+async function fetchSheetData() {
   const sheetId = document.getElementById('sheetId').value.trim();
   if (!sheetId) { alert('Enter your Google Sheet ID in Step 1 first.'); return; }
   if (!googleToken) { alert('Connect Google first.'); return; }
@@ -623,21 +553,11 @@ async function buildAIContext(sheetId, month, year) {
   hint.textContent = 'Reading all tabs…';
 
   try {
-    const tabs = ['Daily Sales','Buybox, CR, Sessions','S&S','ASIN Share','Monthly Sales & Traffic'];
-    let combined = '';
-    for (const tab of tabs) {
-      try {
-        const rows = await sheetsGet(sheetId, `${tab}!A1:Z50`);
-        if (rows.length) {
-          combined += `\n--- Sheet: ${tab} ---\n`;
-          combined += rows.map(r => r.join(',')).join('\n');
-        }
-      } catch(e) { /* tab may not exist */ }
-    }
-    if (!combined.trim()) throw new Error('No data found in sheet');
-    parsedData = combined.trim();
+    const month = document.getElementById('month').value;
+    const year  = document.getElementById('year').value;
+    parsedData  = await buildAIContext(sheetId, month, year);
     const rowCount = parsedData.split('\n').length;
-    hint.textContent = `✓ ${rowCount} rows loaded from Google Sheets`;
+    hint.textContent = `✓ ${rowCount} rows loaded — ${month} ${year} data ready`;
     hint.style.color = 'var(--green)';
     btn.textContent = '✓ Sheet data loaded — click to refresh';
     btn.disabled = false;
@@ -678,12 +598,12 @@ function updateRunButton() {
     document.getElementById('brainKey').value.trim() &&
     document.getElementById('templateId').value.trim();
   btn.disabled = !ok || isRunning;
-  if (isRunning)                                               btn.textContent = '⟳  Running agents…';
-  else if (!googleToken)                                       btn.textContent = 'Connect Google to continue';
-  else if (!parsedData)                                        btn.textContent = 'Load sheet data to continue';
-  else if (!document.getElementById('brainKey').value.trim()) btn.textContent = 'Enter Brain API key to continue';
+  if (isRunning)                                                 btn.textContent = '⟳  Running agents…';
+  else if (!googleToken)                                         btn.textContent = 'Connect Google to continue';
+  else if (!parsedData)                                          btn.textContent = 'Load sheet data to continue';
+  else if (!document.getElementById('brainKey').value.trim())   btn.textContent = 'Enter Brain API key to continue';
   else if (!document.getElementById('templateId').value.trim()) btn.textContent = 'Enter template ID to continue';
-  else                                                         btn.textContent = '▶  Generate Google Slides Report';
+  else                                                           btn.textContent = '▶  Generate Google Slides Report';
 }
 
 // ─────────────────────────────────────────────
@@ -779,8 +699,7 @@ function extractJSON(raw) {
 // ─────────────────────────────────────────────
 function monthLabel(monthName, year) {
   const mIdx = MONTH_NAMES.findIndex(m => monthName.toLowerCase().startsWith(m.toLowerCase()));
-  const yy = String(year).slice(-2);
-  return `${MONTH_NAMES[mIdx >= 0 ? mIdx : 0]} ${yy}`;
+  return `${MONTH_NAMES[mIdx >= 0 ? mIdx : 0]} ${String(year).slice(-2)}`;
 }
 
 async function sheetsGet(sheetId, range) {
@@ -817,47 +736,6 @@ async function findMonthRow(sheetId, tabName, monthName, year) {
   return null;
 }
 
-async function getFileParent(fileId) {
-  const r = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?fields=parents&supportsAllDrives=true&includeItemsFromAllDrives=true`, {
-    headers: { 'Authorization':'Bearer ' + googleToken }
-  });
-  const d = await r.json();
-  if (d.error) throw new Error('Could not get file parent: ' + d.error.message);
-  return d.parents?.[0] || null;
-}
-
-async function createFolder(name, parentId) {
-  const meta = {
-    name,
-    mimeType: 'application/vnd.google-apps.folder',
-    ...(parentId ? { parents: [parentId] } : {})
-  };
-  const r = await fetch('https://www.googleapis.com/drive/v3/files?supportsAllDrives=true', {
-    method: 'POST',
-    headers: { 'Authorization':'Bearer ' + googleToken, 'Content-Type':'application/json' },
-    body: JSON.stringify(meta)
-  });
-  const d = await r.json();
-  if (d.error) throw new Error('Folder creation failed: ' + d.error.message);
-  return d.id;
-}
-
-async function moveFileTo(fileId, folderId) {
-  // Get current parents first
-  const meta = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?fields=parents&supportsAllDrives=true`, {
-    headers: { 'Authorization':'Bearer ' + googleToken }
-  }).then(r => r.json());
-  const prevParents = (meta.parents || []).join(',');
-  const r = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?addParents=${folderId}&removeParents=${prevParents}&supportsAllDrives=true`, {
-    method: 'PATCH',
-    headers: { 'Authorization':'Bearer ' + googleToken, 'Content-Type':'application/json' },
-    body: JSON.stringify({})
-  });
-  const d = await r.json();
-  if (d.error) throw new Error('Move failed: ' + d.error.message);
-  return d;
-}
-
 async function copySheet(sheetId, title, folderId) {
   const body = { name: title };
   if (folderId) body.parents = [folderId];
@@ -878,13 +756,12 @@ async function clearFutureRows(sheetId, tabName, fromRow, cols, totalRows) {
   for (const col of cols) {
     const blanks = Array.from({ length: endRow - startRow + 1 }, () => ['']);
     try { await sheetsUpdate(sheetId, `${tabName}!${col}${startRow}:${col}${endRow}`, blanks); }
-    catch(e) { /* non-fatal */ }
+    catch(e) {}
   }
 }
 
 async function updateSheetData(sheetId, extracted, month, year) {
   addLog('writer', 'Updating Google Sheet with current month data…');
-
   const stRow = await findMonthRow(sheetId, 'Monthly Sales & Traffic', month, year);
   const bbRow = await findMonthRow(sheetId, 'Buybox, CR, Sessions', month, year);
 
@@ -893,8 +770,7 @@ async function updateSheetData(sheetId, extracted, month, year) {
     const pairs = [
       { col:'B', val: parseNum(extracted.MON_SALES) },
       { col:'F', val: parseNum(extracted.MON_UNITS) },
-      { col:'N', val: parseNum(extracted.MON_SALES) && parseNum(extracted.MON_UNITS)
-          ? +(parseNum(extracted.MON_SALES)/parseNum(extracted.MON_UNITS)).toFixed(2) : null },
+      { col:'N', val: parseNum(extracted.MON_SALES) && parseNum(extracted.MON_UNITS) ? +(parseNum(extracted.MON_SALES)/parseNum(extracted.MON_UNITS)).toFixed(2) : null },
       { col:'P', val: parseNum(extracted.MON_SESSIONS) },
       { col:'Q', val: extracted.MON_CVR ? parseNum(extracted.MON_CVR)/100 : null },
       { col:'T', val: extracted.MON_BUYBOX ? parseNum(extracted.MON_BUYBOX)/100 : null },
@@ -904,21 +780,39 @@ async function updateSheetData(sheetId, extracted, month, year) {
         await sheetsUpdate(sheetId, `Monthly Sales & Traffic!${col}${stRow}`, [[val]]);
     }
     addLog('writer', 'Monthly Sales & Traffic updated ✓');
-  } else {
-    addLog('writer', `⚠ ${monthLabel(month,year)} not found in Monthly Sales & Traffic`, 'error');
   }
 
   if (bbRow && extracted.MON_BUYBOX) {
     await sheetsUpdate(sheetId, `Buybox, CR, Sessions!B${bbRow}`, [[parseNum(extracted.MON_BUYBOX)/100]]);
     addLog('writer', 'Buybox, CR, Sessions updated ✓');
   }
-
   addLog('writer', 'Sheet update complete ✓');
 }
 
 // ─────────────────────────────────────────────
-// Google Slides API
+// Google Drive API
 // ─────────────────────────────────────────────
+async function getFileParent(fileId) {
+  const r = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?fields=parents&supportsAllDrives=true&includeItemsFromAllDrives=true`, {
+    headers: { 'Authorization':'Bearer ' + googleToken }
+  });
+  const d = await r.json();
+  if (d.error) throw new Error('Could not get file parent: ' + d.error.message);
+  return d.parents?.[0] || null;
+}
+
+async function createFolder(name, parentId) {
+  const meta = { name, mimeType:'application/vnd.google-apps.folder', ...(parentId ? { parents:[parentId] } : {}) };
+  const r = await fetch('https://www.googleapis.com/drive/v3/files?supportsAllDrives=true', {
+    method: 'POST',
+    headers: { 'Authorization':'Bearer ' + googleToken, 'Content-Type':'application/json' },
+    body: JSON.stringify(meta)
+  });
+  const d = await r.json();
+  if (d.error) throw new Error('Folder creation failed: ' + d.error.message);
+  return d.id;
+}
+
 async function copyTemplate(templateId, title, folderId) {
   const body = { name: title };
   if (folderId) body.parents = [folderId];
@@ -935,10 +829,7 @@ async function copyTemplate(templateId, title, folderId) {
 async function batchReplaceText(presentationId, replacements) {
   const requests = Object.entries(replacements)
     .filter(([,v]) => v !== undefined && v !== null && v !== '')
-    .map(([k,v]) => ({ replaceAllText:{
-      containsText:{ text:`{{${k}}}`, matchCase:false },
-      replaceText: String(v)
-    }}));
+    .map(([k,v]) => ({ replaceAllText:{ containsText:{ text:`{{${k}}}`, matchCase:false }, replaceText:String(v) }}));
   if (!requests.length) return;
   for (let i=0; i<requests.length; i+=100) {
     const r = await fetch(`https://slides.googleapis.com/v1/presentations/${presentationId}:batchUpdate`, {
@@ -954,22 +845,17 @@ async function batchReplaceText(presentationId, replacements) {
 async function refreshSlidesCharts(presentationId) {
   addLog('writer', 'Waiting for Sheet to sync…');
   await new Promise(r => setTimeout(r, 4000));
-  addLog('writer', 'Refreshing linked charts in slides…');
-
+  addLog('writer', 'Refreshing linked charts…');
   const r = await fetch(`https://slides.googleapis.com/v1/presentations/${presentationId}`, {
     headers: { 'Authorization':'Bearer ' + googleToken }
   });
   const pres = await r.json();
   if (pres.error) throw new Error('Could not read presentation: ' + pres.error.message);
-
   const requests = [];
-  for (const slide of (pres.slides || [])) {
-    for (const el of (slide.pageElements || [])) {
+  for (const slide of (pres.slides || []))
+    for (const el of (slide.pageElements || []))
       if (el.sheetsChart) requests.push({ refreshSheetsChart:{ objectId: el.objectId } });
-    }
-  }
   if (!requests.length) { addLog('writer', 'No linked charts found'); return; }
-
   for (let i=0; i<requests.length; i+=10) {
     const res = await fetch(`https://slides.googleapis.com/v1/presentations/${presentationId}:batchUpdate`, {
       method:'POST',
@@ -1001,13 +887,13 @@ async function runAgents() {
   const deckTitle  = `${brand} Monthly Report — ${month} ${year}`;
 
   try {
-    // Rebuild focused AI context at run time using selected month/year
+    // Rebuild focused context
     if (sheetId) {
       addLog('orchestrator', `Building data context for ${month} ${year}…`);
       parsedData = await buildAIContext(sheetId, month, year);
     }
 
-    // ── Orchestrator ──
+    // Orchestrator
     addLog('orchestrator', `Planning ${brand} ${month} ${year} Monthly Report… [${currentMode} / ${getSelectedModel()}]`);
     setProgress(10);
     const orchRaw = await callBrain(
@@ -1019,22 +905,30 @@ async function runAgents() {
     addLog('orchestrator', plan.summary);
     setProgress(25);
 
-    // ── Data Agent ──
+    // Data Agent
     addLog('data', 'Extracting metrics from Sheet data…');
     const dataRaw = await callBrain(
       `You are a Data Agent extracting marketplace metrics for a monthly report deck.
 Return ONLY raw JSON (no markdown, no code fences). Use "" for missing text, 0 for missing numbers.
 Format values ready for slides (e.g. "$42,561", "+109%", "11.3%").
-For MoM (month-over-month) values: calculate the % change from the PREVIOUS month row to the current month row.
-Format MoM as "+X.X%" or "-X.X%" — never as "0.0%" unless truly unchanged.
-For PP (percentage point) changes on CVR and Buybox, format as "+X.XPP" or "-X.XPP".
+
+CRITICAL RULES:
+- MON_ fields = ONLY the single selected month's data (e.g. February 2026 = one month only)
+- ANNUAL_ fields = full prior calendar year totals (e.g. all of 2025)
+- NEVER put annual totals into monthly fields or vice versa
+- For MoM: calculate % change from PREVIOUS month to current month
+- Format MoM as "+X.X%" or "-X.X%" — never "0.0%" unless truly unchanged
+- CVR and Buybox PP changes: format as "+X.XPP" or "-X.XPP"
+- NEVER reference quarters — this is a monthly report only
+- NEXT_PERIOD = next month name and year (e.g. "March 2026")
 
 Return this exact structure:
 {
-  "BRAND":"","MONTH":"","YEAR":"","QUARTER":"Q1",
+  "BRAND":"","MONTH":"","YEAR":"",
   "EXEC_HEADLINE":"","WIN_1":"","WIN_2":"","WIN_3":"",
-  "CHALLENGE_1":"","CHALLENGE_2":"",
+  "CHALLENGE_1":"","CHALLENGE_2":"","CHALLENGE_3":"",
   "OPP_1":"","OPP_2":"","OPP_3":"",
+  "NEXT_PERIOD":"",
   "ANNUAL_SALES":"","ANNUAL_SALES_YOY":"","ANNUAL_UNITS":"","ANNUAL_UNITS_YOY":"",
   "ANNUAL_SESSIONS":"","ANNUAL_SESSIONS_YOY":"",
   "ANNUAL_CVR":"","ANNUAL_CVR_YOY":"",
@@ -1047,8 +941,7 @@ Return this exact structure:
   "TRAFFIC_COMMENTARY":"",
   "ASIN_HEADLINE":"","ASIN_COMMENTARY":"",
   "S_AND_S_HEADLINE":"","S_AND_S_COMMENTARY":"",
-  "BUYBOX_COMMENTARY":"","TOP_PRODUCTS_COMMENTARY":"",
-  "NEXT_PERIOD":""
+  "BUYBOX_COMMENTARY":"","TOP_PRODUCTS_COMMENTARY":""
 }`,
       `Brand:${brand} Period:${month} ${year}\nSheet data:\n${parsedData.slice(0,7000)}`,
       5000
@@ -1063,29 +956,24 @@ Return this exact structure:
     addLog('data', `${Object.values(extracted).filter(v => v && v !== '0').length} fields extracted`);
     setProgress(50);
 
-    // ── Find template's parent folder, create output folder there ──
-    addLog('writer', `Creating folder in same location as template…`);
+    // Create folder in same location as template
+    addLog('writer', 'Creating folder…');
     const templateParentId = await getFileParent(templateId);
     const folderId = await createFolder(deckTitle, templateParentId);
     addLog('writer', `Folder "${deckTitle}" created ✓`);
 
-    // ── Copy Sheet into folder and update data ──
+    // Copy Sheet
     let workingSheetId = sheetId;
     if (sheetId) {
       addLog('writer', 'Copying linked Sheet into folder…');
       workingSheetId = await copySheet(sheetId, `${deckTitle} — Data`, folderId);
       addLog('writer', 'Sheet copy created ✓');
-
       await updateSheetData(workingSheetId, extracted, month, year);
-
-      // Trim chart data to selected month in the COPY only
       addLog('writer', `Trimming charts to ${month} ${year}…`);
       const stRow = await findMonthRow(workingSheetId, 'Monthly Sales & Traffic', month, year);
       const bbRow = await findMonthRow(workingSheetId, 'Buybox, CR, Sessions', month, year);
       if (stRow) await clearFutureRows(workingSheetId, 'Monthly Sales & Traffic', stRow, ['B','C','D','F','P','Q','T'], 20);
       if (bbRow) await clearFutureRows(workingSheetId, 'Buybox, CR, Sessions', bbRow, ['B'], 20);
-
-      // Trim Daily Sales to correct number of days
       const mIdx = MONTH_NAMES.findIndex(m => month.toLowerCase().startsWith(m.toLowerCase()));
       const daysInMonth = new Date(parseInt(year), mIdx + 1, 0).getDate();
       await clearFutureRows(workingSheetId, 'Daily Sales', daysInMonth + 1, ['B'], 10);
@@ -1093,36 +981,35 @@ Return this exact structure:
     }
     setProgress(65);
 
-    // ── Copy Slides template into folder ──
+    // Copy Slides template
     addLog('writer', 'Copying template into folder…');
     const newId = await copyTemplate(templateId, deckTitle, folderId);
     addLog('writer', `Deck created: "${deckTitle}"`);
     setProgress(70);
 
-    // ── Refresh charts ──
+    // Refresh charts
     if (sheetId) await refreshSlidesCharts(newId);
     setProgress(85);
 
-    // ── Replace text placeholders ──
+    // Replace placeholders
     addLog('writer', 'Injecting data into slides…');
     await batchReplaceText(newId, extracted);
     addLog('writer', `${Object.keys(extracted).length} placeholders replaced`);
     setProgress(95);
 
-    const url = `https://docs.google.com/presentation/d/${newId}/edit`;
+    const url       = `https://docs.google.com/presentation/d/${newId}/edit`;
     const folderUrl = `https://drive.google.com/drive/folders/${folderId}`;
     addLog('writer', '✓ Done — report is live!', 'success');
     setProgress(100);
 
-    document.getElementById('resultLink').href             = url;
-    document.getElementById('resultLinkTitle').textContent = deckTitle;
-    document.getElementById('resultLinkSub').textContent   = `Click to open in Google Slides`;
-    document.getElementById('folderLink').href             = folderUrl;
-    document.getElementById('folderLinkTitle').textContent = `📁 ${deckTitle}`;
-    document.getElementById('resultCard').className        = 'result-card visible';
-    document.getElementById('step3Status').textContent     = 'Done';
-    document.getElementById('step3Status').className       = 'step-status done';
-    document.getElementById('step3').className             = 'step done active';
+    document.getElementById('resultLink').href              = url;
+    document.getElementById('resultLinkTitle').textContent  = deckTitle;
+    document.getElementById('folderLink').href              = folderUrl;
+    document.getElementById('folderLinkTitle').textContent  = `📁 ${deckTitle}`;
+    document.getElementById('resultCard').className         = 'result-card visible';
+    document.getElementById('step3Status').textContent      = 'Done';
+    document.getElementById('step3Status').className        = 'step-status done';
+    document.getElementById('step3').className              = 'step done active';
 
   } catch(err) {
     addLog('orchestrator', 'Error: ' + err.message, 'error');
