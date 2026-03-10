@@ -523,7 +523,93 @@ function updateAuthBadge(ok) {
 // ─────────────────────────────────────────────
 // Fetch Sheet data for AI
 // ─────────────────────────────────────────────
-async function fetchSheetData() {
+async function buildAIContext(sheetId, month, year) {
+  // Build a focused, clearly labelled data context for the AI
+  // instead of dumping all sheet data which causes confusion
+  const label     = monthLabel(month, year);
+  const mIdx      = MONTH_NAMES.findIndex(m => month.toLowerCase().startsWith(m.toLowerCase()));
+  const prevMIdx  = mIdx === 0 ? 11 : mIdx - 1;
+  const prevYear  = mIdx === 0 ? parseInt(year) - 1 : parseInt(year);
+  const prevLabel = `${MONTH_NAMES[prevMIdx]} ${String(prevYear).slice(-2)}`;
+
+  let context = `SELECTED MONTH: ${month} ${year}\nPREVIOUS MONTH: ${MONTH_NAMES[prevMIdx]} ${prevYear}\n\n`;
+
+  // Pull Monthly Sales & Traffic — find selected and previous month rows
+  try {
+    const rows = await sheetsGet(sheetId, 'Monthly Sales & Traffic!A1:T25');
+    if (rows.length) {
+      const headers = rows[0];
+      let targetRow = null, prevRow = null;
+      for (let i = 1; i < rows.length; i++) {
+        const cell = rows[i][0]?.toString().trim();
+        if (cell === label) targetRow = rows[i];
+        if (cell === prevLabel) prevRow = rows[i];
+      }
+      if (targetRow) {
+        context += `=== ${label} Monthly Sales & Traffic ===\n`;
+        headers.forEach((h, i) => {
+          if (targetRow[i] !== undefined && targetRow[i] !== '')
+            context += `${h}: ${targetRow[i]}\n`;
+        });
+      }
+      if (prevRow) {
+        context += `\n=== ${prevLabel} Monthly Sales & Traffic (previous month for MoM) ===\n`;
+        headers.forEach((h, i) => {
+          if (prevRow[i] !== undefined && prevRow[i] !== '')
+            context += `${h}: ${prevRow[i]}\n`;
+        });
+      }
+      // Also send YTD/annual summary row if present (usually last non-empty row)
+      const annualRow = rows.find(r => r[0]?.toString().toLowerCase().includes('total') || r[0]?.toString().toLowerCase().includes('ytd'));
+      if (annualRow) {
+        context += `\n=== Annual/YTD Total ===\n`;
+        headers.forEach((h, i) => {
+          if (annualRow[i] !== undefined && annualRow[i] !== '')
+            context += `${h}: ${annualRow[i]}\n`;
+        });
+      }
+    }
+  } catch(e) { context += `Monthly Sales & Traffic: unavailable\n`; }
+
+  // Pull prior full year totals from Monthly Sales & Traffic
+  try {
+    const rows = await sheetsGet(sheetId, 'Monthly Sales & Traffic!A1:T25');
+    const priorYearRows = rows.filter(r => r[0]?.toString().trim().endsWith(String(parseInt(year)-1).slice(-2)));
+    if (priorYearRows.length) {
+      const headers = rows[0];
+      let totalSales = 0, totalUnits = 0, totalSessions = 0;
+      priorYearRows.forEach(r => {
+        totalSales    += parseFloat(String(r[1]||'').replace(/[$,]/g,'')) || 0;
+        totalUnits    += parseFloat(String(r[5]||'').replace(/[,]/g,''))  || 0;
+        totalSessions += parseFloat(String(r[15]||'').replace(/[,]/g,'')) || 0;
+      });
+      context += `\n=== Full Year ${parseInt(year)-1} Totals (for ANNUAL_ fields) ===\n`;
+      context += `Total Sales: ${totalSales.toLocaleString()}\n`;
+      context += `Total Units: ${totalUnits.toLocaleString()}\n`;
+      context += `Total Sessions: ${totalSessions.toLocaleString()}\n`;
+      // Last month of prior year for CVR/Buybox averages
+      const lastPriorRow = priorYearRows[priorYearRows.length - 1];
+      if (lastPriorRow) {
+        context += `Avg CVR (last month prior year): ${lastPriorRow[16]||''}\n`;
+        context += `Avg Buybox (last month prior year): ${lastPriorRow[19]||''}\n`;
+      }
+    }
+  } catch(e) {}
+
+  // Pull other tabs briefly
+  const otherTabs = ['Daily Sales','Buybox, CR, Sessions','S&S','ASIN Share'];
+  for (const tab of otherTabs) {
+    try {
+      const rows = await sheetsGet(sheetId, `${tab}!A1:F35`);
+      if (rows.length) {
+        context += `\n=== ${tab} ===\n`;
+        context += rows.slice(0, 35).map(r => r.join(',')).join('\n') + '\n';
+      }
+    } catch(e) {}
+  }
+
+  return context;
+}
   const sheetId = document.getElementById('sheetId').value.trim();
   if (!sheetId) { alert('Enter your Google Sheet ID in Step 1 first.'); return; }
   if (!googleToken) { alert('Connect Google first.'); return; }
@@ -914,6 +1000,12 @@ async function runAgents() {
   const deckTitle  = `${brand} Monthly Report — ${month} ${year}`;
 
   try {
+    // Rebuild focused AI context at run time using selected month/year
+    if (sheetId) {
+      addLog('orchestrator', `Building data context for ${month} ${year}…`);
+      parsedData = await buildAIContext(sheetId, month, year);
+    }
+
     // ── Orchestrator ──
     addLog('orchestrator', `Planning ${brand} ${month} ${year} Monthly Report… [${currentMode} / ${getSelectedModel()}]`);
     setProgress(10);
